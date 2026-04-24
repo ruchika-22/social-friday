@@ -23,7 +23,7 @@
   .screen{display:none;min-height:100vh;position:relative;z-index:1}
   .screen.active{display:flex;flex-direction:column}
 
-  /* ── HEADER ── */
+  /* ── HEADER & LANDING ── */
   .app-header{
     padding:20px 28px;display:flex;align-items:center;justify-content:space-between;
     border-bottom:1px solid var(--border);background:rgba(10,10,15,0.8);
@@ -38,320 +38,76 @@
   .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-  /* ── LANDING ── */
   #screen-landing{align-items:center;justify-content:center;text-align:center;
     background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(255,92,53,0.12) 0%,transparent 70%)}
   .landing-hero{padding:40px 28px;max-width:640px}
-  .hero-eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;
-    color:var(--accent);font-weight:600;margin-bottom:20px}
-  .hero-title{font-size:clamp(42px,7vw,72px);font-weight:800;line-height:1;
-    background:linear-gradient(135deg,#fff 30%,var(--text2));
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+  .hero-eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:20px}
+  .hero-title{font-size:clamp(42px,7vw,72px);font-weight:800;line-height:1;background:linear-gradient(135deg,#fff 30%,var(--text2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
   .hero-sub{font-size:18px;color:var(--text2);line-height:1.6;margin-bottom:40px;font-weight:300}
-  .hero-features{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
-  .feature-pill{background:var(--surface2);border:1px solid var(--border);
-    border-radius:40px;padding:8px 16px;font-size:13px;color:var(--text2)}
-  .feature-pill strong{color:var(--text);font-weight:500}
-  .btn-primary{
-    background:linear-gradient(135deg,var(--accent),#ff8c42);
-    border:none;border-radius:50px;padding:16px 40px;
-    font-family:'Syne',sans-serif;font-size:17px;font-weight:700;
-    color:#fff;cursor:pointer;letter-spacing:0.5px;
-    box-shadow:0 8px 32px rgba(255,92,53,0.35);
-    transition:all 0.2s;display:inline-block
-  }
+  
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#ff8c42);border:none;border-radius:50px;padding:16px 40px;font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 32px rgba(255,92,53,0.35);transition:all 0.2s;}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,92,53,0.5)}
-  .btn-secondary{
-    background:var(--surface2);border:1px solid var(--border2);
-    border-radius:50px;padding:13px 28px;font-size:15px;font-weight:500;
-    color:var(--text);cursor:pointer;transition:all 0.2s
-  }
-  .btn-secondary:hover{background:var(--surface3);border-color:rgba(255,255,255,0.25)}
-  .btn-ghost{background:transparent;border:1px solid var(--border);
-    border-radius:var(--radius);padding:10px 20px;font-size:14px;
-    color:var(--text2);cursor:pointer;transition:all 0.2s;font-family:inherit}
-  .btn-ghost:hover{border-color:var(--border2);color:var(--text);background:var(--surface2)}
+  .btn-secondary{background:var(--surface2);border:1px solid var(--border2);border-radius:50px;padding:13px 28px;font-size:15px;color:var(--text);cursor:pointer;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:10px 20px;color:var(--text2);cursor:pointer;}
 
-  /* ── SETUP ── */
+  /* ── SETUP & PARTICIPANTS ── */
   #screen-setup{padding-bottom:60px}
-  .setup-content{max-width:760px;margin:0 auto;padding:40px 28px}
+  .setup-content{max-width:860px;margin:0 auto;padding:40px 28px}
   .step-indicator{display:flex;gap:8px;margin-bottom:36px;align-items:center}
-  .step-dot{width:8px;height:8px;border-radius:50%;background:var(--surface3);transition:all 0.3s}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:var(--surface3);}
   .step-dot.active{background:var(--accent);width:24px;border-radius:4px}
-  .step-dot.done{background:var(--green)}
-  .section-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;
-    color:var(--accent);font-weight:600;margin-bottom:10px}
   .section-title{font-size:28px;font-weight:700;margin-bottom:6px}
-  .section-sub{font-size:15px;color:var(--text2);margin-bottom:28px;line-height:1.5}
+  .section-sub{font-size:15px;color:var(--text2);margin-bottom:28px;}
 
-  .participants-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
-  .participant-card{
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius);padding:14px;
-    display:flex;flex-direction:column;gap:8px;position:relative;
-    transition:border-color 0.2s
-  }
-  .participant-card:hover{border-color:var(--border2)}
-  .participant-card.filled{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04)}
-  .p-avatar{width:44px;height:44px;border-radius:12px;
-    background:linear-gradient(135deg,var(--accent4),var(--accent3));
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
-  .p-name-input{background:transparent;border:none;outline:none;
-    font-family:'Syne',sans-serif;font-size:15px;font-weight:600;
-    color:var(--text);width:100%;padding:0}
-  .p-name-input::placeholder{color:var(--text3)}
-  .p-role-input{background:transparent;border:none;outline:none;
-    font-size:12px;color:var(--text2);width:100%;padding:0;font-family:inherit}
-  .p-role-input::placeholder{color:var(--text3)}
-  .card-remove{position:absolute;top:10px;right:10px;background:none;border:none;
-    color:var(--text3);cursor:pointer;font-size:16px;line-height:1;
-    width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    transition:all 0.2s}
-  .card-remove:hover{background:rgba(239,68,68,0.15);color:var(--red)}
-  .add-card{border:1px dashed var(--border2);border-radius:var(--radius);
-    padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;
-    cursor:pointer;color:var(--text3);font-size:14px;transition:all 0.2s;
-    background:transparent;font-family:inherit}
-  .add-card:hover{border-color:var(--accent);color:var(--accent);background:rgba(255,92,53,0.04)}
-
-  .upload-zone{border:1px dashed var(--border2);border-radius:var(--radius2);
-    padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;
-    background:var(--surface)}
-  .upload-zone:hover{border-color:var(--accent3);background:rgba(53,212,255,0.04)}
-  .upload-icon{font-size:32px;margin-bottom:12px}
-  .upload-label{font-size:15px;color:var(--text2);margin-bottom:6px}
-  .upload-hint{font-size:12px;color:var(--text3)}
+  .participants-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+  .participant-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;}
+  .p-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;color:#fff;margin-bottom:4px}
+  .p-name-input{background:transparent;border:none;outline:none;font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);width:100%;}
+  .p-role-input{background:transparent;border:none;outline:none;font-size:13px;color:var(--text2);width:100%;}
+  .card-remove{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+  .add-card{border:1px dashed var(--border2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);min-height:180px;background:transparent;}
+  
+  /* NEW: Pre-Game Answer Styling */
+  .pre-game-zone { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2); }
+  .pre-game-q { font-size: 11px; color: var(--accent3); font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
+  .p-ans-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; color: var(--text); width: 100%; font-size: 13px; outline: none; }
+  .p-ans-input:focus { border-color: var(--accent2); }
 
   .form-row{margin-bottom:20px}
   .form-label{font-size:13px;color:var(--text2);margin-bottom:8px;display:block}
-  .form-input{
-    width:100%;background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius);padding:12px 16px;font-size:15px;
-    color:var(--text);outline:none;transition:border-color 0.2s;font-family:inherit
-  }
-  .form-input:focus{border-color:var(--accent3)}
-  .form-textarea{resize:vertical;min-height:80px;line-height:1.5}
-
+  .form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;color:var(--text);outline:none;}
+  
   .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:28px}
-  .game-option{
-    background:var(--surface);border:2px solid transparent;
-    border-radius:var(--radius2);padding:20px;cursor:pointer;transition:all 0.2s;
-    position:relative;overflow:hidden
-  }
-  .game-option::before{content:'';position:absolute;inset:0;
-    background:linear-gradient(135deg,var(--c1,var(--accent)),var(--c2,var(--accent2)));
-    opacity:0;transition:opacity 0.2s;z-index:0}
-  .game-option:hover::before{opacity:0.07}
+  .game-option{background:var(--surface);border:2px solid transparent;border-radius:var(--radius2);padding:20px;cursor:pointer;position:relative;overflow:hidden}
   .game-option.selected{border-color:var(--accent)}
-  .game-option.selected::before{opacity:0.1}
-  .game-emoji{font-size:28px;margin-bottom:10px;position:relative;z-index:1}
-  .game-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
-    margin-bottom:4px;position:relative;z-index:1}
-  .game-desc{font-size:12px;color:var(--text2);line-height:1.4;position:relative;z-index:1}
-  .game-tag{display:inline-block;background:rgba(255,92,53,0.12);
-    color:var(--accent);border-radius:20px;padding:3px 10px;font-size:10px;
-    font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:8px;position:relative;z-index:1}
-
+  .game-emoji{font-size:28px;margin-bottom:10px;}
+  .game-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
   .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:28px;border-top:1px solid var(--border)}
 
   /* ── GAME SCREEN ── */
-  #screen-game{background:var(--bg)}
   .game-layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 65px)}
-  .sidebar{background:var(--surface);border-right:1px solid var(--border);
-    padding:24px 20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto}
-  .game-main{padding:32px;display:flex;flex-direction:column;gap:24px;overflow-y:auto}
-
-  .sidebar-section-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;
-    color:var(--text3);font-weight:600;margin-bottom:12px}
-
-  .player-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
-    border-radius:var(--radius);border:1px solid transparent;transition:all 0.2s;cursor:default}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 20px;display:flex;flex-direction:column;gap:20px;}
+  .game-main{padding:32px;display:flex;flex-direction:column;gap:24px;}
+  .player-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid transparent;}
   .player-item.active{background:rgba(255,92,53,0.08);border-color:rgba(255,92,53,0.2)}
-  .player-item.winner{background:rgba(255,215,0,0.06);border-color:rgba(255,215,0,0.2)}
-  .player-avatar{width:34px;height:34px;border-radius:10px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-  .player-info{flex:1;min-width:0}
-  .player-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .player-score{font-family:'Syne',sans-serif;font-size:13px;color:var(--accent2);font-weight:600}
-  .player-status{font-size:11px;color:var(--text3)}
+  .player-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;}
+  .player-score{font-family:'Syne',sans-serif;font-size:13px;color:var(--accent2);font-weight:600;margin-left:auto;}
 
-  .progress-bar-wrap{background:var(--surface2);border-radius:4px;height:4px;margin-top:6px}
-  .progress-bar{height:4px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease}
-
-  .game-card{background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius2);padding:28px;position:relative;overflow:hidden}
-  .game-card::before{content:'';position:absolute;top:-40px;right:-40px;
-    width:120px;height:120px;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,92,53,0.08),transparent 70%)}
-
-  /* MEDIA CONTAINERS FOR NEW GAMES */
-  .media-container {
-      width: 100%;
-      max-height: 350px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: var(--surface2);
-      border-radius: var(--radius);
-      margin-bottom: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border2);
-  }
-  .media-container img, .media-container video {
-      max-width: 100%;
-      max-height: 350px;
-      object-fit: contain;
-  }
-  .media-container audio {
-      width: 80%;
-      margin: 20px 0;
-  }
-  
-  /* INTERACTIVE SYNC BUTTON */
-  .sync-game-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-  }
-  .sync-btn {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent3), var(--accent4));
-      border: none;
-      color: white;
-      font-size: 24px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 0 30px rgba(53, 212, 255, 0.4);
-      transition: transform 0.1s;
-  }
-  .sync-btn:active {
-      transform: scale(0.9);
-      box-shadow: 0 0 10px rgba(53, 212, 255, 0.8);
-  }
-
-  .round-badge{display:inline-flex;align-items:center;gap:8px;
-    background:var(--surface2);border:1px solid var(--border2);
-    border-radius:40px;padding:6px 14px;font-size:13px;color:var(--text2);margin-bottom:16px}
-  .round-num{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent)}
-
-  .question-box{margin-bottom:24px}
-  .q-category{font-size:11px;letter-spacing:2px;text-transform:uppercase;
-    color:var(--accent3);font-weight:600;margin-bottom:10px}
+  .game-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:28px;position:relative;}
+  .round-badge{display:inline-flex;background:var(--surface2);border:1px solid var(--border2);border-radius:40px;padding:6px 14px;font-size:13px;color:var(--text2);margin-bottom:16px}
+  .q-category{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);font-weight:600;margin-bottom:10px}
   .q-text{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;line-height:1.3;color:var(--text)}
+  
+  .vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .vote-btn{background:var(--surface2);border:2px solid transparent;border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;color:white;}
+  .vote-btn:hover{border-color:var(--accent4);background:rgba(168,85,247,0.08)}
+  
+  .insight-card{background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(53,212,255,0.1));border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius);padding:16px 18px;display:flex;gap:12px;margin-top:20px;}
+  .insight-icon{font-size:20px;}
+  .insight-label{font-size:11px;text-transform:uppercase;color:var(--accent4);font-weight:600;}
 
-  .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .answer-btn{
-    background:var(--surface2);border:1px solid var(--border);
-    border-radius:var(--radius);padding:16px 18px;text-align:left;
-    font-size:15px;color:var(--text);cursor:pointer;transition:all 0.15s;
-    font-family:inherit;display:flex;align-items:center;gap:10px
-  }
-  .answer-btn:hover{border-color:var(--border2);background:var(--surface3);transform:translateY(-1px)}
-  .answer-btn.correct{border-color:var(--green);background:rgba(34,197,94,0.1);color:var(--green)}
-  .answer-btn.wrong{border-color:var(--red);background:rgba(239,68,68,0.1);color:var(--red)}
-  .answer-btn.selected{border-color:var(--accent);background:rgba(255,92,53,0.08)}
-  .answer-key{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
-    color:var(--text3);min-width:20px}
-
-  .timer-ring{position:relative;width:56px;height:56px;flex-shrink:0}
-  .timer-ring svg{transform:rotate(-90deg)}
-  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent)}
-
-  .insight-card{background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(53,212,255,0.1));
-    border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius);
-    padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
-  .insight-icon{font-size:20px;margin-top:2px}
-  .insight-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent4);font-weight:600;margin-bottom:4px}
-  .insight-text{font-size:13px;color:var(--text2);line-height:1.5}
-
-  .open-answer-wrap{display:flex;gap:10px;margin-top:8px}
-  .open-answer-input{flex:1;background:var(--surface2);border:1px solid var(--border);
-    border-radius:var(--radius);padding:12px 16px;font-size:15px;color:var(--text);
-    outline:none;font-family:inherit;transition:border-color 0.2s}
-  .open-answer-input:focus{border-color:var(--accent3)}
-  .btn-submit{background:var(--accent);border:none;border-radius:var(--radius);
-    padding:12px 20px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;
-    font-family:inherit;transition:all 0.2s;white-space:nowrap}
-  .btn-submit:hover{background:#ff7043}
-
-  /* ── RESULTS ── */
-  #screen-results{align-items:center;
-    background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(255,215,0,0.08),transparent 60%)}
-  .results-content{max-width:700px;width:100%;margin:0 auto;padding:48px 28px}
-  .results-title{font-size:clamp(36px,6vw,60px);font-weight:800;text-align:center;
-    background:linear-gradient(135deg,var(--gold),var(--accent2));
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-  .results-sub{text-align:center;font-size:16px;color:var(--text2);margin-bottom:40px}
-
-  .podium{display:flex;align-items:flex-end;justify-content:center;gap:16px;margin-bottom:40px}
-  .podium-place{display:flex;flex-direction:column;align-items:center;gap:10px}
-  .podium-platform{border-radius:12px 12px 4px 4px;display:flex;align-items:center;justify-content:center;width:110px}
-  .podium-place:nth-child(1) .podium-platform{height:90px;background:linear-gradient(180deg,rgba(255,215,0,0.2),rgba(255,215,0,0.05));border:1px solid rgba(255,215,0,0.3)}
-  .podium-place:nth-child(2) .podium-platform{height:65px;background:linear-gradient(180deg,rgba(168,85,247,0.15),rgba(168,85,247,0.03));border:1px solid rgba(168,85,247,0.2)}
-  .podium-place:nth-child(3) .podium-platform{height:48px;background:linear-gradient(180deg,rgba(53,212,255,0.15),rgba(53,212,255,0.03));border:1px solid rgba(53,212,255,0.2)}
-  .podium-rank{font-family:'Syne',sans-serif;font-weight:800;font-size:20px}
-  .podium-place:nth-child(1) .podium-rank{color:var(--gold)}
-  .podium-place:nth-child(2) .podium-rank{color:var(--accent4)}
-  .podium-place:nth-child(3) .podium-rank{color:var(--accent3)}
-  .podium-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;text-align:center}
-  .podium-score{font-size:13px;color:var(--text2)}
-  .podium-avatar{width:48px;height:48px;border-radius:14px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff}
-
-  .insights-section{background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius2);padding:28px;margin-bottom:24px}
-  .trait-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:16px}
-  .trait-card{background:var(--surface2);border-radius:var(--radius);padding:14px;text-align:center}
-  .trait-name{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .trait-player{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text)}
-  .trait-value{font-size:11px;color:var(--text3);margin-top:2px}
-
-  .full-scores{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:24px}
-  .score-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border)}
-  .score-row:last-child{border-bottom:none}
-  .score-rank{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--text3);width:24px}
-  .score-name{flex:1;font-weight:500}
-  .score-pts{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--accent2)}
-  .score-bar-wrap{width:120px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
-  .score-bar-fill{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-
-  .results-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-
-  /* TRANSITIONS */
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   .fade-up{animation:fadeUp 0.4s ease forwards}
-
-  .meet-notice{background:rgba(53,212,255,0.06);border:1px solid rgba(53,212,255,0.15);
-    border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;font-size:13px;color:var(--text2)}
-  .meet-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-
-  .current-player-highlight{background:rgba(255,92,53,0.06);border:1px solid rgba(255,92,53,0.2);
-    border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
-  .turn-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-  .turn-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
-
-  .game-info-bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-  .info-chip{background:var(--surface2);border:1px solid var(--border);
-    border-radius:40px;padding:5px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:5px}
-  .info-chip strong{color:var(--text);font-weight:500}
-
-  .vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
-  .vote-btn{
-    background:var(--surface2);border:2px solid transparent;border-radius:var(--radius);
-    padding:16px;text-align:center;cursor:pointer;transition:all 0.15s;font-family:inherit
-  }
-  .vote-btn:hover{border-color:var(--accent4);background:rgba(168,85,247,0.08)}
-  .vote-btn.voted{border-color:var(--accent4);background:rgba(168,85,247,0.12)}
-  .vote-name{font-weight:600;font-size:14px;color:var(--text)}
-  .vote-count{font-size:12px;color:var(--text3);margin-top:4px}
 </style>
 </head>
 <body>
@@ -360,132 +116,37 @@
 <div id="screen-landing" class="screen active">
   <div class="app-header">
     <div class="logo">FridayGames <span>Team Edition</span></div>
-    <div class="header-badge"><span class="dot"></span> Ready to play</div>
   </div>
   <div class="landing-hero fade-up">
-    <div class="hero-eyebrow">🎮 Social Friday Activity</div>
     <h1 class="hero-title">Level Up<br>Team Culture</h1>
-    <p class="hero-sub">AI-powered games that reveal personality traits, strengths & spark real connections — built for remote teams on Google Meet.</p>
-    <div class="hero-features">
-      <div class="feature-pill"><strong>6+</strong> unique games</div>
-      <div class="feature-pill"><strong>Live</strong> media parsing</div>
-      <div class="feature-pill"><strong>Interactive</strong> co-op rounds</div>
-      <div class="feature-pill"><strong>AI</strong> powered insights</div>
-    </div>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-primary" onclick="goTo('screen-setup')">Start Friday Session →</button>
-      <button class="btn-secondary" onclick="loadDemo()">Try Demo</button>
-    </div>
+    <p class="hero-sub">Features a new "Who Said It?" game! Assign secret questions beforehand and guess teammates' answers.</p>
+    <button class="btn-primary" onclick="goTo('screen-setup')">Start Setup →</button>
+    <button class="btn-secondary" onclick="loadDemo()" style="margin-left:10px;">Try Demo</button>
   </div>
 </div>
 
 <div id="screen-setup" class="screen">
   <div class="app-header">
     <div class="logo">FridayGames <span>Setup</span></div>
-    <button class="btn-ghost" onclick="goTo('screen-landing')">← Back</button>
   </div>
   <div class="setup-content fade-up">
-    <div class="step-indicator" id="step-dots">
-      <div class="step-dot active" id="dot-0"></div>
-      <div class="step-dot" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div>
-    </div>
-
+    
     <div id="setup-step-0">
-      <div class="section-label">Step 1</div>
-      <h2 class="section-title">Who's playing today?</h2>
-      <p class="section-sub">Add your team members and upload fun files (photos of desks, pets, short audio clips) for the interactive media games.</p>
-
-      <div class="meet-notice">
-        <span class="meet-icon">🎥</span>
-        <div><strong style="color:var(--accent3)">Google Meet detected</strong> — the app will pull active participants and use meeting context to tailor icebreakers and games.</div>
-      </div>
+      <h2 class="section-title">The Locker Room</h2>
+      <p class="section-sub">Add players and have them answer a random secret question before we start!</p>
 
       <div class="participants-grid" id="participants-grid">
-        <div class="participant-card filled">
-          <div class="p-avatar" id="av-0" style="background:linear-gradient(135deg,#ff5c35,#ff8c42)">A</div>
-          <input class="p-name-input" placeholder="Name..." value="Alex Chen" oninput="updateAvatar(0,this.value)" id="pname-0">
-          <input class="p-role-input" placeholder="Role / Team..." value="Engineering Lead" id="prole-0">
-          <button class="card-remove" onclick="removeParticipant(this)">✕</button>
-        </div>
-        <div class="participant-card filled">
-          <div class="p-avatar" id="av-1" style="background:linear-gradient(135deg,#a855f7,#35d4ff)">S</div>
-          <input class="p-name-input" placeholder="Name..." value="Sofia Reyes" oninput="updateAvatar(1,this.value)" id="pname-1">
-          <input class="p-role-input" placeholder="Role / Team..." value="Product Design" id="prole-1">
-          <button class="card-remove" onclick="removeParticipant(this)">✕</button>
-        </div>
-        <div class="participant-card filled">
-          <div class="p-avatar" id="av-2" style="background:linear-gradient(135deg,#22c55e,#35d4ff)">M</div>
-          <input class="p-name-input" placeholder="Name..." value="Marcus Webb" oninput="updateAvatar(2,this.value)" id="pname-2">
-          <input class="p-role-input" placeholder="Role / Team..." value="Data Science" id="prole-2">
-          <button class="card-remove" onclick="removeParticipant(this)">✕</button>
-        </div>
-        <div class="participant-card filled">
-          <div class="p-avatar" id="av-3" style="background:linear-gradient(135deg,#ffb347,#ff5c35)">P</div>
-          <input class="p-name-input" placeholder="Name..." value="Priya Nair" oninput="updateAvatar(3,this.value)" id="pname-3">
-          <input class="p-role-input" placeholder="Role / Team..." value="Marketing" id="prole-3">
-          <button class="card-remove" onclick="removeParticipant(this)">✕</button>
-        </div>
         <button class="add-card" onclick="addParticipant()">+ Add player</button>
       </div>
 
-      <div class="form-row" style="margin-top:24px">
-        <label class="form-label">Upload game media (Photos, Videos, Audio clips)</label>
-        <div class="upload-zone" onclick="triggerUpload('context-upload')">
-          <div class="upload-icon">📎</div>
-          <div class="upload-label">Drop files or click to upload</div>
-          <div class="upload-hint">Upload photos of desks, pets, or 5-second voice memos for the "Media Mystery" game.</div>
-          <input type="file" id="context-upload" multiple accept="image/*,video/*,audio/*" style="display:none" onchange="handleUpload(this)">
-        </div>
-        <div id="uploaded-files" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px"></div>
-      </div>
-
       <div class="nav-row">
-        <span style="font-size:13px;color:var(--text3)" id="player-count">4 players ready</span>
         <button class="btn-primary" onclick="nextStep()">Choose Games →</button>
       </div>
     </div>
 
     <div id="setup-step-1" style="display:none">
-      <div class="section-label">Step 2</div>
       <h2 class="section-title">Pick your game mix</h2>
-      <p class="section-sub">Select your games. We'll randomize the order and tailor questions to your team.</p>
-
-      <div class="games-grid" id="games-grid">
-        </div>
-
-      <div class="nav-row">
-        <button class="btn-ghost" onclick="prevStep()">← Back</button>
-        <button class="btn-primary" onclick="nextStep()">Configure →</button>
-      </div>
-    </div>
-
-    <div id="setup-step-2" style="display:none">
-      <div class="section-label">Step 3</div>
-      <h2 class="section-title">Final setup</h2>
-      <p class="section-sub">A few quick settings before we launch.</p>
-
-      <div class="form-row">
-        <label class="form-label">Session name / theme (optional)</label>
-        <input class="form-input" id="session-name" placeholder="e.g. Q2 Kickoff, New Joiner Week..." value="Friday Vibes — April Edition">
-      </div>
-      <div class="form-row">
-        <label class="form-label">Rounds per game</label>
-        <select class="form-input" id="rounds-count">
-          <option value="3">3 rounds (quick, ~10 min)</option>
-          <option value="5" selected>5 rounds (balanced, ~20 min)</option>
-          <option value="8">8 rounds (full session, ~35 min)</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Personality insight depth</label>
-        <select class="form-input" id="insight-depth">
-          <option value="light">Light — fun & playful only</option>
-          <option value="balanced" selected>Balanced — mix of fun and real insights</option>
-          <option value="deep">Deep — MBTI-style trait mapping</option>
-        </select>
-      </div>
-
+      <div class="games-grid" id="games-grid"></div>
       <div class="nav-row">
         <button class="btn-ghost" onclick="prevStep()">← Back</button>
         <button class="btn-primary" onclick="startGame()">🚀 Launch Game!</button>
@@ -496,21 +157,14 @@
 
 <div id="screen-game" class="screen">
   <div class="app-header">
-    <div class="logo">FridayGames <span id="game-session-label">Friday Vibes</span></div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="header-badge"><span class="dot"></span> <span id="meet-status">Meet connected</span></div>
-      <button class="btn-ghost" onclick="endGame()" style="font-size:13px;padding:8px 14px">End Session</button>
-    </div>
+    <div class="logo">FridayGames <span id="game-session-label">Playing</span></div>
+    <button class="btn-ghost" onclick="location.reload()">End Session</button>
   </div>
   <div class="game-layout">
     <div class="sidebar" id="game-sidebar">
       <div>
-        <div class="sidebar-section-title">Players</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">LEADERBOARD</div>
         <div id="players-list"></div>
-      </div>
-      <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border)">
-        <div class="sidebar-section-title">Leaderboard</div>
-        <div id="mini-leaderboard"></div>
       </div>
     </div>
     <div class="game-main" id="game-main">
@@ -518,166 +172,119 @@
   </div>
 </div>
 
-<div id="screen-results" class="screen">
-  <div class="app-header">
-    <div class="logo">FridayGames <span>Results</span></div>
-    <div class="header-badge"><span class="dot" style="background:var(--gold)"></span> Session complete</div>
-  </div>
-  <div class="results-content fade-up">
-    <div class="results-title">Game Over! 🏆</div>
-    <p class="results-sub" id="results-subtitle">Here's how the team performed today</p>
-
-    <div class="podium" id="podium"></div>
-    <div class="full-scores" id="full-scores-table"></div>
-
-    <div class="insights-section" id="team-insights">
-      <div class="section-label">Team Insights</div>
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">What we discovered today</h3>
-      <p style="font-size:14px;color:var(--text2);margin-bottom:16px" id="insights-summary"></p>
-      <div class="trait-grid" id="trait-grid"></div>
-    </div>
-
-    <div class="results-actions">
-      <button class="btn-primary" onclick="playAgain()">Play Again 🎲</button>
-      <button class="btn-secondary" onclick="exportResults()">Export Insights 📊</button>
-      <button class="btn-ghost" onclick="goTo('screen-landing')">Back to Home</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// --- NEW GAMES ADDED: 'media_guess' and 'team_sync' ---
-const GAMES = [
-  {id:'media_guess',name:'Media Mystery',emoji:'📸',desc:'Watch/listen to uploaded files and guess whose it is!',tag:'Media',c1:'#a855f7',c2:'#ff5c35'},
-  {id:'team_sync',name:'Team Sync',emoji:'⚡',desc:'Interactive co-op! Click the button exactly the target amount of times as a team.',tag:'Interactive',c1:'#35d4ff',c2:'#22c55e'},
-  {id:'trivia',name:'Team Trivia',emoji:'🧠',desc:'AI-generated questions tailored to your team — mix of general & work culture.',tag:'Knowledge',c1:'#ff5c35',c2:'#ffb347'},
-  {id:'2truths',name:'2 Truths & a Lie',emoji:'🤥',desc:'Spot who\'s bluffing. Reveals personality and surprises teammates.',tag:'Icebreaker',c1:'#a855f7',c2:'#35d4ff'},
-  {id:'predict',name:'Team Predictions',emoji:'🔮',desc:'Predict how teammates will answer personality questions. Earn points for accuracy.',tag:'Personality',c1:'#35d4ff',c2:'#22c55e'},
-  {id:'debate',name:'Hot Takes',emoji:'🔥',desc:'Pick a side on wild hypotheticals. Vote for the most convincing argument.',tag:'Debate',c1:'#ff5c35',c2:'#ef4444'}
+// --- GLOBAL QUESTION POOL ---
+const SECRET_QUESTIONS = [
+    "What was your childhood dream job?",
+    "What is your most controversial food opinion?",
+    "If you had a walk-up song, what would it be?",
+    "What's the weirdest thing on your desk right now?",
+    "What is your favorite weekend activity?",
+    "What movie have you watched more than 5 times?",
+    "What is a hidden talent you have?",
+    "What was your worst haircut?",
+    "What emoji do you use the most?"
 ];
 
-const COLORS = [
-  'linear-gradient(135deg,#ff5c35,#ff8c42)',
-  'linear-gradient(135deg,#a855f7,#35d4ff)',
-  'linear-gradient(135deg,#22c55e,#35d4ff)',
-  'linear-gradient(135deg,#ffb347,#ff5c35)',
-  'linear-gradient(135deg,#35d4ff,#a855f7)',
-  'linear-gradient(135deg,#ef4444,#ffb347)',
+// --- GAMES DEFINITION ---
+const GAMES = [
+  {id:'who_said_it', name:'Who Said It?', emoji:'🗣️', desc:'We reveal a pre-game answer. You guess who said it!', tag:'Trivia', c1:'#ffb347', c2:'#a855f7'},
+  {id:'trivia', name:'Team Trivia', emoji:'🧠', desc:'Standard multiple choice trivia.', tag:'Knowledge', c1:'#ff5c35', c2:'#ffb347'}
 ];
+
+const COLORS = ['linear-gradient(135deg,#ff5c35,#ff8c42)', 'linear-gradient(135deg,#a855f7,#35d4ff)', 'linear-gradient(135deg,#22c55e,#35d4ff)', 'linear-gradient(135deg,#ffb347,#ff5c35)'];
 
 let state = {
   participants:[],
-  selectedGames:[],
-  uploadedMedia:[], // <-- NEW STATE FOR MEDIA
-  scores:{},
-  currentGame:null,
+  selectedGames:['who_said_it'],
   currentRound:0,
-  totalRounds:5,
-  gameQueue:[],
-  gameIndex:0,
-  sessionName:'Friday Vibes',
-  currentPlayer:0,
-  traits:[],
-  syncClicks: 0 // For the interactive game
+  totalRounds:4,
+  gameIndex:0
 };
 
+// --- INITIALIZE UI ---
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
 }
 
-function updateAvatar(i,val){
-  const el=document.getElementById('av-'+i);
-  if(el) el.textContent=val.trim()[0]||'?';
+let pCount=0;
+function getRandomQuestion() {
+    return SECRET_QUESTIONS[Math.floor(Math.random() * SECRET_QUESTIONS.length)];
 }
 
-let pCount=4;
-function addParticipant(){
+function addParticipant(name='', role='', answer='', q=null){
   const grid=document.getElementById('participants-grid');
-  const addBtn=grid.lastElementChild;
+  const addBtn=document.querySelector('.add-card');
   const div=document.createElement('div');
   div.className='participant-card';
   const idx=pCount++;
   const c=COLORS[idx%COLORS.length];
+  const question = q || getRandomQuestion();
+  
   div.innerHTML=`
-    <div class="p-avatar" id="av-${idx}" style="background:${c}">?</div>
-    <input class="p-name-input" placeholder="Name..." oninput="updateAvatar(${idx},this.value)" id="pname-${idx}">
-    <input class="p-role-input" placeholder="Role / Team..." id="prole-${idx}">
-    <button class="card-remove" onclick="removeParticipant(this)">✕</button>`;
+    <div style="display:flex; gap:10px;">
+        <div class="p-avatar" id="av-${idx}" style="background:${c}">${name ? name[0] : '?'}</div>
+        <div style="flex:1;">
+            <input class="p-name-input" placeholder="Name..." value="${name}" oninput="document.getElementById('av-${idx}').textContent=this.value[0]||'?'" id="pname-${idx}">
+            <input class="p-role-input" placeholder="Role..." value="${role}" id="prole-${idx}">
+        </div>
+    </div>
+    <div class="pre-game-zone">
+        <div class="pre-game-q" id="pq-${idx}">Q: ${question}</div>
+        <input class="p-ans-input" placeholder="Type answer here..." value="${answer}" id="pans-${idx}">
+    </div>
+    <button class="card-remove" onclick="this.parentElement.remove()">✕</button>`;
   grid.insertBefore(div,addBtn);
-  updatePlayerCount();
 }
 
-function removeParticipant(btn){
-  const card=btn.closest('.participant-card');
-  if(document.querySelectorAll('.participant-card.filled,.participant-card:not(.add-card)').length>2)
-    card.remove();
-  updatePlayerCount();
-}
+// Add empty slots on load
+window.onload = () => {
+    addParticipant('','','');
+    addParticipant('','','');
+};
 
-function updatePlayerCount(){
-  const n=document.querySelectorAll('#participants-grid .participant-card').length;
-  const c=document.getElementById('player-count');
-  if(c) c.textContent=(n)+' players ready';
-}
-
-function triggerUpload(id){document.getElementById(id).click()}
-
-// MODIFIED TO STORE FILE URLs LOCALLY FOR GAMES
-function handleUpload(inp){
-  const container=document.getElementById('uploaded-files');
-  [...inp.files].forEach(f=>{
-    const type=f.type.split('/')[0];
-    const fileURL = URL.createObjectURL(f);
-    
-    // Store in global state for game engine to use
-    state.uploadedMedia.push({
-      url: fileURL,
-      type: type,
-      name: f.name
-    });
-
-    const pill=document.createElement('div');
-    pill.style.cssText='background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px';
-    const icons={image:'🖼️',video:'🎬',audio:'🎵'};
-    pill.innerHTML=`<span>${icons[type]||'📎'}</span><span>${f.name.length>20?f.name.slice(0,18)+'…':f.name}</span>`;
-    container.appendChild(pill);
-  });
+function loadDemo() {
+    document.getElementById('participants-grid').innerHTML = '<button class="add-card" onclick="addParticipant()">+ Add player</button>';
+    pCount = 0;
+    addParticipant('Alex Chen', 'Engineer', 'Astronaut', 'What was your childhood dream job?');
+    addParticipant('Sofia Reyes', 'Design', 'Pineapple belongs on pizza.', 'What is your most controversial food opinion?');
+    addParticipant('Marcus Webb', 'Data', 'I can juggle 4 balls.', 'What is a hidden talent you have?');
+    addParticipant('Priya Nair', 'Marketing', 'The Matrix', 'What movie have you watched more than 5 times?');
+    goTo('screen-setup');
 }
 
 let currentStep=0;
 function nextStep(){
   if(currentStep===0) collectParticipants();
-  document.getElementById('setup-step-'+currentStep).style.display='none';
-  currentStep++;
-  document.getElementById('setup-step-'+currentStep).style.display='block';
-  updateStepDots();
-  if(currentStep===1) renderGameOptions();
+  document.getElementById('setup-step-0').style.display='none';
+  document.getElementById('setup-step-1').style.display='block';
+  renderGameOptions();
 }
 function prevStep(){
-  document.getElementById('setup-step-'+currentStep).style.display='none';
-  currentStep--;
-  document.getElementById('setup-step-'+currentStep).style.display='block';
-  updateStepDots();
-}
-function updateStepDots(){
-  for(let i=0;i<3;i++){
-    const d=document.getElementById('dot-'+i);
-    d.className='step-dot'+(i===currentStep?' active':i<currentStep?' done':'');
-  }
+  document.getElementById('setup-step-1').style.display='none';
+  document.getElementById('setup-step-0').style.display='block';
 }
 
 function collectParticipants(){
   state.participants=[];
-  document.querySelectorAll('#participants-grid .participant-card').forEach((card,i)=>{
-    const n=card.querySelector('.p-name-input');
-    const r=card.querySelector('.p-role-input');
-    if(n&&n.value.trim()){
-      state.participants.push({name:n.value.trim(),role:r?r.value.trim():'',color:COLORS[i%COLORS.length],score:0});
+  document.querySelectorAll('.participant-card').forEach((card,i)=>{
+    const n = card.querySelector('.p-name-input').value.trim();
+    const r = card.querySelector('.p-role-input').value.trim();
+    const q = card.querySelector('.pre-game-q').innerText.replace('Q: ', '');
+    const a = card.querySelector('.p-ans-input').value.trim();
+    
+    if(n){
+      state.participants.push({
+          name: n, 
+          role: r, 
+          color: COLORS[i%COLORS.length], 
+          score: 0,
+          secretQuestion: q,
+          secretAnswer: a || "No answer given!"
+      });
     }
   });
-  if(!state.participants.length) state.participants=[{name:'Player 1',role:'',color:COLORS[0],score:0}];
 }
 
 function renderGameOptions(){
@@ -685,61 +292,14 @@ function renderGameOptions(){
   grid.innerHTML='';
   GAMES.forEach(g=>{
     const div=document.createElement('div');
-    div.className='game-option';
-    div.style.setProperty('--c1',g.c1);div.style.setProperty('--c2',g.c2);
-    div.innerHTML=`<div class="game-emoji">${g.emoji}</div><div class="game-name">${g.name}</div><div class="game-desc">${g.desc}</div><div class="game-tag">${g.tag}</div>`;
-    div.onclick=()=>{
-      div.classList.toggle('selected');
-      const idx=state.selectedGames.indexOf(g.id);
-      if(idx===-1) state.selectedGames.push(g.id);
-      else state.selectedGames.splice(idx,1);
-    };
-    if(state.selectedGames.includes(g.id)) div.classList.add('selected');
+    div.className='game-option selected';
+    div.innerHTML=`<div class="game-emoji">${g.emoji}</div><div class="game-name">${g.name}</div><div style="font-size:12px;color:var(--text2);margin-top:5px">${g.desc}</div>`;
     grid.appendChild(div);
   });
 }
 
 function startGame(){
-  state.sessionName=document.getElementById('session-name').value||'Friday Vibes';
-  state.totalRounds=parseInt(document.getElementById('rounds-count').value)||5;
-  if(!state.selectedGames.length){
-    state.selectedGames=GAMES.map(g=>g.id).sort(()=>Math.random()-0.5).slice(0,3);
-  }
-  state.gameQueue=[...state.selectedGames].sort(()=>Math.random()-0.5);
-  state.gameIndex=0;
   state.currentRound=0;
-  state.participants.forEach(p=>p.score=0);
-  state.scores={};
-  state.participants.forEach(p=>state.scores[p.name]=0);
-  state.traits=[];
-  document.getElementById('game-session-label').textContent=state.sessionName;
-  goTo('screen-game');
-  renderGameSidebar();
-  loadCurrentGame();
-}
-
-function loadDemo(){
-  state.participants=[
-    {name:'Alex Chen',role:'Engineering',color:COLORS[0],score:0},
-    {name:'Sofia Reyes',role:'Design',color:COLORS[1],score:0},
-    {name:'Marcus Webb',role:'Data',color:COLORS[2],score:0},
-    {name:'Priya Nair',role:'Marketing',color:COLORS[3],score:0},
-  ];
-  state.selectedGames=['media_guess','team_sync','trivia'];
-  state.sessionName='Friday Demo';
-  state.totalRounds=3;
-  state.gameQueue=['media_guess','team_sync','trivia'];
-  state.gameIndex=0;
-  state.currentRound=0;
-  state.scores={};
-  state.participants.forEach(p=>state.scores[p.name]=0);
-  document.getElementById('game-session-label').textContent=state.sessionName;
-  
-  // Create dummy media for demo if none uploaded
-  if(state.uploadedMedia.length === 0){
-    state.uploadedMedia.push({url:'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=400&q=80', type:'image', name:'desk.jpg'});
-  }
-
   goTo('screen-game');
   renderGameSidebar();
   loadCurrentGame();
@@ -748,347 +308,95 @@ function loadDemo(){
 function renderGameSidebar(){
   const list=document.getElementById('players-list');
   list.innerHTML='';
-  state.participants.forEach((p,i)=>{
-    const div=document.createElement('div');
-    div.className='player-item'+(i===state.currentPlayer?' active':'');
-    div.id='player-item-'+i;
-    div.innerHTML=`
-      <div class="player-avatar" style="background:${p.color}">${p.name[0]}</div>
-      <div class="player-info">
-        <div class="player-name">${p.name}</div>
-        <div class="player-status">${p.role||'Player'}</div>
-      </div>
-      <div class="player-score">${p.score}</div>`;
-    list.appendChild(div);
+  state.participants.sort((a,b)=>b.score-a.score).forEach((p,i)=>{
+    list.innerHTML+=`
+      <div class="player-item">
+        <div class="player-avatar" style="background:${p.color}">${p.name[0]}</div>
+        <div>
+          <div style="font-size:14px;font-weight:600">${p.name}</div>
+        </div>
+        <div class="player-score">${p.score}</div>
+      </div>`;
   });
-  updateMiniLeaderboard();
-}
-
-function updateMiniLeaderboard(){
-  const el=document.getElementById('mini-leaderboard');
-  const sorted=[...state.participants].sort((a,b)=>b.score-a.score);
-  const maxScore=sorted[0]?.score||1;
-  el.innerHTML='';
-  sorted.forEach((p,i)=>{
-    const pct=maxScore>0?Math.round((p.score/maxScore)*100):0;
-    const div=document.createElement('div');
-    div.style.cssText='margin-bottom:10px';
-    div.innerHTML=`
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span style="font-size:12px;color:${i===0?'var(--gold)':'var(--text2)'};font-weight:${i===0?600:400}">${p.name.split(' ')[0]}</span>
-        <span style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;color:var(--accent2)">${p.score}</span>
-      </div>
-      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>`;
-    el.appendChild(div);
-  });
-}
-
-function highlightPlayer(i){
-  document.querySelectorAll('.player-item').forEach((el,j)=>{
-    el.className='player-item'+(j===i?' active':'');
-  });
-  state.currentPlayer=i;
 }
 
 // ─── GAME ENGINE ───────────────────────────────────────────
-let gameTimer=null;
-let timerVal=30;
-
-function startTimer(secs, cb){
-  clearInterval(gameTimer);
-  timerVal=secs;
-  const arc=()=>document.getElementById('timer-arc');
-  const num=()=>document.getElementById('timer-num');
-  const circ=150.8;
-  gameTimer=setInterval(()=>{
-    timerVal--;
-    const a=arc(); const n=num();
-    if(a) a.setAttribute('stroke-dashoffset',circ*(1-timerVal/secs));
-    if(n) n.textContent=timerVal;
-    if(n && timerVal<=10) n.style.color='var(--red)';
-    if(timerVal<=0){clearInterval(gameTimer); if(cb) cb();}
-  },1000);
-}
 
 function loadCurrentGame(){
   state.currentRound++;
-  if(state.currentRound>state.totalRounds){
-    nextGameOrEnd();
-    return;
+  if(state.currentRound > state.participants.length){
+      document.getElementById('game-main').innerHTML = `<h2>Game Over! Check the sidebar for final scores.</h2>`;
+      return;
   }
-  const gameId=state.gameQueue[state.gameIndex%state.gameQueue.length];
-  state.currentGame=gameId;
-  const game=GAMES.find(g=>g.id===gameId);
-  const main=document.getElementById('game-main');
-
-  const infoBar=`
-    <div class="game-info-bar">
-      <div class="info-chip"><span>${game.emoji}</span><strong>${game.name}</strong></div>
-      <div class="info-chip">Round <strong>${state.currentRound}</strong> of <strong>${state.totalRounds}</strong></div>
-    </div>`;
-
-  if(gameId==='media_guess') renderMediaMystery(main,infoBar);
-  else if(gameId==='team_sync') renderTeamSync(main,infoBar);
-  else if(gameId==='trivia') renderTrivia(main,infoBar);
-  else if(gameId==='2truths') renderTruthsLies(main,infoBar);
-  else renderPrediction(main,infoBar); // Fallback
+  
+  // We will strictly play "Who Said It?" using the predefined answers
+  renderWhoSaidIt();
 }
 
-// ================= NEW GAME 1: MEDIA MYSTERY =================
-function renderMediaMystery(main, infoBar){
-  clearInterval(gameTimer);
-  highlightPlayer(-1);
+function renderWhoSaidIt(){
+  const main = document.getElementById('game-main');
   
-  let mediaHtml = '';
-  // Fallback to placeholder if no media was uploaded
-  const mediaObj = state.uploadedMedia.length > 0 
-      ? state.uploadedMedia[state.currentRound % state.uploadedMedia.length] 
-      : {url: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=400&q=80', type: 'image'};
+  // Pick the player whose secret answer we are guessing this round
+  const correctIdx = (state.currentRound - 1) % state.participants.length;
+  const targetPlayer = state.participants[correctIdx];
 
-  if (mediaObj.type === 'image') {
-      mediaHtml = `<img src="${mediaObj.url}" alt="Mystery Image">`;
-  } else if (mediaObj.type === 'video') {
-      mediaHtml = `<video src="${mediaObj.url}" controls autoplay></video>`;
-  } else if (mediaObj.type === 'audio') {
-      mediaHtml = `<audio src="${mediaObj.url}" controls autoplay></audio>`;
-  }
-
-  // Assign the correct answer to a random player (since files aren't tightly bound to users in setup)
-  const correctIdx = Math.floor(Math.random() * state.participants.length);
+  const infoBar = `<div style="margin-bottom:20px; color:var(--text2)">Round ${state.currentRound} of ${state.participants.length}</div>`;
 
   main.innerHTML=`
     ${infoBar}
-    <div class="game-card">
-      <div class="round-badge">Round <span class="round-num">${state.currentRound}</span></div>
-      <div class="q-category">Whose file is this?</div>
+    <div class="game-card fade-up">
+      <div class="round-badge">Who Said It?</div>
       
-      <div class="media-container fade-up">
-          ${mediaHtml}
+      <div style="background:var(--surface2); padding:24px; border-radius:var(--radius); margin-bottom:24px; border-left: 4px solid var(--accent2);">
+          <div style="font-size:13px; color:var(--text2); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">The Question:</div>
+          <div style="font-size:18px; color:var(--text); margin-bottom:16px;">${targetPlayer.secretQuestion}</div>
+          
+          <div style="font-size:13px; color:var(--text2); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Their Answer:</div>
+          <div style="font-size:28px; font-weight:800; font-family:'Syne',sans-serif; color:var(--accent2);">"${targetPlayer.secretAnswer}"</div>
       </div>
 
-      <div class="q-text" style="margin-bottom:20px; font-size:18px;">Guess who uploaded this!</div>
+      <div style="font-size:18px; font-weight:600; margin-bottom:16px;">Who submitted this answer?</div>
       
-      <div class="vote-grid" id="vote-grid">
-        ${state.participants.map((p,i)=>`<button class="vote-btn" onclick="guessMedia(${i}, ${correctIdx}, '${p.name}')">
-          <div class="player-avatar" style="background:${p.color};width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;margin:0 auto 8px">${p.name[0]}</div>
-          <div class="vote-name">${p.name.split(' ')[0]}</div>
+      <div class="vote-grid">
+        ${state.participants.map((px, i) => `
+        <button class="vote-btn" onclick="guessWhoSaidIt(${i}, ${correctIdx}, '${px.name}')">
+          <div class="player-avatar" style="background:${px.color};width:40px;height:40px;border-radius:12px;margin:0 auto 8px;font-size:18px;">${px.name[0]}</div>
+          <div style="font-weight:600">${px.name.split(' ')[0]}</div>
         </button>`).join('')}
       </div>
     </div>
     <div id="ai-insight-wrap"></div>`;
 }
 
-function guessMedia(chosenIdx, correctIdx, pName){
-  const btns=document.querySelectorAll('.vote-btn');
-  btns.forEach(b=>b.disabled=true);
+function guessWhoSaidIt(chosenIdx, correctIdx, pName){
+  const btns = document.querySelectorAll('.vote-btn');
+  btns.forEach(b => b.disabled = true);
   
+  const correctName = state.participants[correctIdx].name;
+
   if(chosenIdx === correctIdx) {
       btns[chosenIdx].style.borderColor = 'var(--green)';
       btns[chosenIdx].style.background = 'rgba(34,197,94,0.1)';
-      state.participants[chosenIdx].score += 50;
-      showInsight('🕵️', 'Spot On!', 'Great job recognizing your teammates\' environments/hobbies.');
+      // Reward the person who guessed correctly (Simulation: granting points to the chosen player logic for demo)
+      state.participants[chosenIdx].score += 100;
+      showInsight('🎯', 'Correct!', `You nailed it. That was indeed ${correctName}.`);
   } else {
       btns[chosenIdx].style.borderColor = 'var(--red)';
       btns[correctIdx].style.borderColor = 'var(--green)';
-      showInsight('😅', 'Nope!', `That actually belonged to ${state.participants[correctIdx].name}!`);
+      showInsight('😅', 'Nope!', `That answer actually belonged to ${correctName}!`);
   }
   
-  updateMiniLeaderboard();
   renderGameSidebar();
-  setTimeout(()=>loadCurrentGame(), 3000);
-}
-
-// ================= NEW GAME 2: TEAM SYNC (INTERACTIVE) =================
-function renderTeamSync(main, infoBar){
-    state.syncClicks = 0;
-    const targetClicks = Math.floor(Math.random() * 30) + 15; // Random target between 15-45
-
-    main.innerHTML=`
-    ${infoBar}
-    <div class="game-card" style="text-align:center">
-      <div class="round-badge">Round <span class="round-num">${state.currentRound}</span></div>
-      <div class="q-category">Communicate & Click!</div>
-      <div class="q-text" style="margin-bottom:10px">Target: <span style="color:var(--accent3); font-size:32px;">${targetClicks}</span> clicks!</div>
-      <p style="color:var(--text2); font-size:14px;">As a team, click the button exactly ${targetClicks} times before the timer runs out. Don't go over!</p>
-      
-      <div class="sync-game-area fade-up">
-          <button class="sync-btn" onclick="registerClick()">TAP</button>
-          <div style="font-size:18px; font-weight:bold;">Current: <span id="click-counter" style="color:var(--accent4)">0</span></div>
-      </div>
-
-      <div class="timer-ring" style="margin: 20px auto 0">
-        <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="var(--surface3)" stroke-width="4"/><circle id="timer-arc" cx="28" cy="28" r="24" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="150.8" stroke-dashoffset="0" stroke-linecap="round"/></svg>
-        <div class="timer-num" id="timer-num">10</div>
-      </div>
-    </div>
-    <div id="ai-insight-wrap"></div>`;
-
-    startTimer(10, () => resolveTeamSync(targetClicks));
-}
-
-function registerClick() {
-    state.syncClicks++;
-    document.getElementById('click-counter').innerText = state.syncClicks;
-}
-
-function resolveTeamSync(target) {
-    const btns = document.querySelectorAll('.sync-btn');
-    if(btns[0]) btns[0].disabled = true;
-
-    const diff = Math.abs(target - state.syncClicks);
-    
-    if (diff === 0) {
-        // Perfect score
-        state.participants.forEach(p => p.score += 100);
-        showInsight('🔥', 'Perfect Sync!', 'Incredible team coordination. Flawless communication.');
-    } else if (diff <= 5) {
-        state.participants.forEach(p => p.score += 30);
-        showInsight('👍', 'Close enough', `You were off by ${diff}. Good effort, but chaotic execution!`);
-    } else {
-        showInsight('💥', 'Total Chaos', `You hit ${state.syncClicks} instead of ${target}. Someone wasn't listening!`);
-    }
-    
-    updateMiniLeaderboard();
-    renderGameSidebar();
-    setTimeout(()=>loadCurrentGame(), 3500);
-}
-
-
-// ================= ORIGINAL GAMES (Abridged for context) =================
-function renderTrivia(main,infoBar){
-  const q={cat:'Culture',q:'The best measure of a successful team meeting is:',opts:['Clear action items assigned','Everyone felt heard','Meeting ended on time','Decisions were made fast'],ans:0};
-  const pIdx=(state.currentRound-1)%state.participants.length;
-  highlightPlayer(pIdx);
-  
-  main.innerHTML=`
-    ${infoBar}
-    <div class="game-card">
-      <div class="round-badge">Round <span class="round-num">${state.currentRound}</span></div>
-      <div class="question-box">
-        <div class="q-category">${q.cat}</div>
-        <div class="q-text">${q.q}</div>
-      </div>
-      <div class="answer-grid">
-        ${q.opts.map((o,i)=>`<button class="answer-btn" onclick="autoAdvance(${pIdx}, true)">${o}</button>`).join('')}
-      </div>
-    </div>
-    <div id="ai-insight-wrap"></div>`;
-}
-
-function renderTruthsLies(main,infoBar){
-  main.innerHTML=`
-    ${infoBar}
-    <div class="game-card">
-      <div class="round-badge">Round <span class="round-num">${state.currentRound}</span></div>
-      <div class="q-category">2 Truths & a Lie</div>
-      <div class="q-text">Spot the lie!</div>
-      <div style="display:flex;flex-direction:column;gap:10px" id="tl-opts">
-        <button class="answer-btn" onclick="autoAdvance(0, true)">I have a twin</button>
-        <button class="answer-btn" onclick="autoAdvance(0, false)">I met a celebrity</button>
-        <button class="answer-btn" onclick="autoAdvance(0, false)">I've never seen Star Wars</button>
-      </div>
-    </div>
-    <div id="ai-insight-wrap"></div>`;
-}
-
-function renderPrediction(main,infoBar){
-  main.innerHTML=`
-    ${infoBar}
-    <div class="game-card">
-      <div class="round-badge">Round <span class="round-num">${state.currentRound}</span></div>
-      <div class="q-category">Prediction</div>
-      <div class="q-text">Who is most likely to survive on a desert island?</div>
-      <div class="vote-grid">
-        ${state.participants.map((p,i)=>`<button class="vote-btn" onclick="autoAdvance(${i}, true)">${p.name.split(' ')[0]}</button>`).join('')}
-      </div>
-    </div>`;
-}
-
-function autoAdvance(pIdx, score=false){
-  if(score) state.participants[pIdx].score+=20;
-  updateMiniLeaderboard();
-  renderGameSidebar();
-  setTimeout(()=>loadCurrentGame(), 1000);
+  setTimeout(() => loadCurrentGame(), 3500);
 }
 
 function showInsight(icon,title,text){
-  const wrap=document.getElementById('ai-insight-wrap');
-  if(!wrap) return;
+  const wrap = document.getElementById('ai-insight-wrap');
   wrap.innerHTML=`<div class="insight-card fade-up">
     <div class="insight-icon">${icon}</div>
-    <div><div class="insight-label">${title}</div><div class="insight-text">${text}</div></div>
+    <div><div class="insight-label">${title}</div><div style="font-size:14px; color:var(--text); margin-top:4px;">${text}</div></div>
   </div>`;
 }
-
-function nextGameOrEnd(){
-  state.gameIndex++;
-  state.currentRound=0;
-  if(state.gameIndex>=state.gameQueue.length){
-    showResults();
-  } else {
-    loadCurrentGame();
-  }
-}
-
-function endGame(){if(confirm('End the session and see results?')) showResults();}
-
-function showResults(){
-  goTo('screen-results');
-  const sorted=[...state.participants].sort((a,b)=>b.score-a.score);
-  const maxScore=sorted[0]?.score||1;
-
-  document.getElementById('results-subtitle').textContent=`${state.sessionName} • ${state.participants.length} players`;
-
-  // Podium
-  const podium=document.getElementById('podium');
-  const order=[sorted[1],sorted[0],sorted[2]].filter(Boolean);
-  const ranks=['2nd','1st','3rd'];
-  const heights=[65,90,48];
-  podium.innerHTML='';
-  order.forEach((p,i)=>{
-    if(!p) return;
-    const fullRank=p===sorted[0]?1:p===sorted[1]?2:3;
-    const div=document.createElement('div');
-    div.className='podium-place';
-    div.innerHTML=`
-      <div class="podium-avatar" style="background:${p.color}">${p.name[0]}</div>
-      <div class="podium-name">${p.name.split(' ')[0]}</div>
-      <div class="podium-score">${p.score} pts</div>
-      <div class="podium-platform" style="height:${heights[i]}px">
-        <div class="podium-rank">${fullRank===1?'🥇':fullRank===2?'🥈':'🥉'}</div>
-      </div>`;
-    podium.appendChild(div);
-  });
-
-  // Full scores
-  const table=document.getElementById('full-scores-table');
-  table.innerHTML='';
-  sorted.forEach((p,i)=>{
-    const pct=Math.round((p.score/maxScore)*100);
-    const row=document.createElement('div');
-    row.className='score-row';
-    row.innerHTML=`
-      <div class="score-rank">${i+1}</div>
-      <div class="player-avatar" style="background:${p.color};width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0">${p.name[0]}</div>
-      <div class="score-name">${p.name}<div style="font-size:12px;color:var(--text3)">${p.role||''}</div></div>
-      <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${pct}%"></div></div>
-      <div class="score-pts">${p.score}</div>`;
-    table.appendChild(row);
-  });
-}
-
-function playAgain(){
-  state.participants.forEach(p=>p.score=0);
-  state.gameQueue=[...state.selectedGames].sort(()=>Math.random()-0.5);
-  state.gameIndex=0;state.currentRound=0;
-  goTo('screen-game');
-  renderGameSidebar();
-  loadCurrentGame();
-}
-
-// Init game selection
-state.selectedGames=['media_guess','team_sync','trivia'];
-renderGameOptions();
 </script>
 </body>
 </html>
