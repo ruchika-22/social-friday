@@ -1,0 +1,1573 @@
+import React, { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { ref, set, update, onValue, increment } from 'firebase/database';
+import { db } from './firebase'; 
+import './App.css'; 
+
+const SECRET_QUESTIONS = [
+  // Personal / Icebreaker
+  "What was your childhood dream job?",
+  "What is your most controversial food opinion?",
+  "What's the weirdest thing on your desk right now?",
+  "If you had a walk-up song, what would it be?",
+  "What's a skill you secretly wish you had?",
+  "What movie can you quote from memory?",
+  "What's the strangest compliment you've ever received?",
+  "What's something on your bucket list nobody would guess?",
+  // Team Strength & Weakness
+  "What do you think is this team's hidden superpower?",
+  "What's one thing this team does better than any other?",
+  "What's a weakness we should work on as a team?",
+  "If our team were a band, what genre would we play?",
+  "What's the most underrated skill on this team?",
+  "Describe our team culture in exactly 3 words.",
+  "What's the biggest risk our team should take next?",
+  "What would you change about how we communicate?",
+  "What's one thing we should stop doing as a team?",
+  "What energizes you most about working with this team?",
+  "What's the #1 thing that slows our team down?",
+  "If you could add one rule to our team, what would it be?"
+];
+
+const SELL_THIS_ITEMS = [
+  "A waterproof tea bag",
+  "A glass hammer",
+  "A solar-powered flashlight",
+  "An inflatable dart board",
+  "A screen door for a submarine",
+  "A helicopter ejector seat",
+  "A parachute that opens on impact",
+  "A fireproof match",
+  "An invisible cloak (slightly see-through)",
+  "A chocolate teapot",
+  "Diet water",
+  "Dehydrated water — just add water!",
+  "A noise-cancelling kazoo",
+  "A left-handed screwdriver",
+  "Waterproof sponge"
+];
+
+const ALIEN_CLUES = [
+  { clue: "Humans trap tiny lightning bolts inside a glass shell and hang them from the ceiling to make night go away.", answer: "Light Bulb" },
+  { clue: "A flat rectangle that shows you moving pictures of other humans doing things you wish you were doing.", answer: "Television" },
+  { clue: "You put bean juice in your mouth hole every morning or your brain won't turn on.", answer: "Coffee" },
+  { clue: "A metal box on wheels that you sit inside while it screams through the streets at deadly speed, and you consider this normal.", answer: "Car" },
+  { clue: "Thin sheets of dead tree that you stare at to absorb knowledge from other humans who are probably dead.", answer: "Book" },
+  { clue: "A cold box in your kitchen that keeps food from being consumed by tiny invisible creatures.", answer: "Refrigerator" },
+  { clue: "You press little squares with symbols on them to send thoughts to other humans on the other side of the planet.", answer: "Keyboard" },
+  { clue: "Fluffy white sky-water that sometimes gets angry and throws electric bolts at the ground.", answer: "Cloud" },
+  { clue: "A tiny slab of glass and metal that contains all human knowledge, but you mostly use it to look at pictures of food.", answer: "Smartphone" },
+  { clue: "You climb into a ceramic bowl of warm water and just sit there. For fun. And relaxation.", answer: "Bathtub" },
+  { clue: "Metal teeth on fabric that you pull a tiny handle to open and close. Holds your leg coverings together.", answer: "Zipper" },
+  { clue: "A stick covered in tiny bristles that you rub on your mouth bones twice a day to prevent them from dissolving.", answer: "Toothbrush" }
+];
+
+const STRENGTH_OPTIONS = [
+  "🧠 Problem Solving", "🎨 Creative Thinking", "🤝 Team Collaboration",
+  "🚀 Fast Execution", "📋 Planning & Organization", "💡 Generating Ideas",
+  "🛡️ Quality & Attention to Detail", "📢 Communication", "🔥 Motivating Others",
+  "🔍 Analytical Thinking", "🌊 Staying Calm Under Pressure", "🎯 Goal-Oriented Focus",
+  "🎓 Mentoring & Coaching", "⚡ Adaptability", "🔧 Technical Expertise"
+];
+
+const WEAKNESS_OPTIONS = [
+  "⏰ Time Management", "🗣️ Public Speaking", "📝 Documentation",
+  "🔀 Delegating Tasks", "🤷 Saying No", "📊 Data-Driven Decisions",
+  "🐢 Overthinking", "💬 Giving Feedback", "🎯 Prioritization",
+  "🧘 Patience", "📐 Attention to Detail", "🤝 Asking for Help",
+  "🔄 Adapting to Change", "🏃 Work-Life Balance", "📢 Speaking Up in Meetings"
+];
+
+const CAPTION_PROMPTS = [
+  "Write the funniest caption for this!",
+  "What is this person REALLY thinking?",
+  "Title this like a movie poster.",
+  "Describe this in one dramatic sentence.",
+  "Give this a clickbait headline.",
+  "Write this person's LinkedIn headline based on this."
+];
+
+const EMOJI_DECODE_PROMPTS = [
+  { emoji: "🏠💻☕😴", answer: "Working from home life" },
+  { emoji: "📧📧📧🔥🗑️", answer: "Email overload" },
+  { emoji: "🎉🍕🎮🕐➡️🕕", answer: "Office party that went too long" },
+  { emoji: "👨‍💻🐛🔍😱🔧✅", answer: "Finding and fixing a bug" },
+  { emoji: "📊📈🎤😰💦", answer: "Presenting quarterly results" },
+  { emoji: "🤝📝☕🗣️⏰", answer: "Meeting that could've been an email" },
+  { emoji: "🧑‍🤝‍🧑💡🌟🚀", answer: "Teamwork making the dream work" },
+  { emoji: "📱🔔🔔🔔😤🔇", answer: "Too many notifications" },
+  { emoji: "🌅🏃‍♂️🍎📚✨", answer: "Morning routine goals" },
+  { emoji: "🍿🎬🛋️🌧️😌", answer: "Cozy movie night" }
+];
+
+const WORD_ASSOCIATION_PROMPTS = [
+  "Monday", "Deadline", "Coffee", "Teamwork", "Innovation",
+  "Leadership", "Creativity", "Failure", "Success", "Feedback",
+  "Meeting", "Lunch Break", "Weekend", "Boss", "Promotion"
+];
+
+const WOULD_YOU_RATHER_PROMPTS = [
+  { a: "Never attend another meeting", b: "Never write another email" },
+  { a: "Have a 4-day work week", b: "Work from anywhere in the world" },
+  { a: "Always know the right answer", b: "Always ask the right question" },
+  { a: "Lead a huge team", b: "Be the best individual contributor" },
+  { a: "Have unlimited coffee", b: "Have unlimited vacation days" },
+  { a: "Redo your biggest failure", b: "Relive your biggest success" },
+  { a: "Work with your best friend", b: "Work for your dream company" },
+  { a: "Give a TED talk", b: "Write a bestselling book" },
+  { a: "Have a robot assistant", b: "Have a clone of yourself" },
+  { a: "Know every language fluently", b: "Master every instrument" }
+];
+
+const THIS_OR_THAT_PROMPTS = [
+  { a: "Early Bird 🌅", b: "Night Owl 🦉" },
+  { a: "Tabs", b: "Spaces" },
+  { a: "Dog Person 🐕", b: "Cat Person 🐱" },
+  { a: "Plan Everything 📋", b: "Wing It 🪂" },
+  { a: "Sweet 🍰", b: "Savory 🧀" },
+  { a: "Beach Vacation 🏖️", b: "Mountain Adventure ⛰️" },
+  { a: "Books 📚", b: "Podcasts 🎧" },
+  { a: "Call 📞", b: "Text 💬" },
+  { a: "Rewrite from scratch ♻️", b: "Fix the legacy code 🩹" },
+  { a: "Dark Mode 🌙", b: "Light Mode ☀️" }
+];
+
+const TEAM_TRIVIA_QUESTIONS = [
+  { q: "What does 'SCRUM' stand for in project management?", options: ["Software Coding Review & Update Method", "It's not an acronym — it's a rugby term", "Systematic Code Review Unified Model", "Strategic Collaborative Resource Use Model"], correct: 1 },
+  { q: "What is the maximum number of people Jeff Bezos says should be in a meeting?", options: ["6 (Two pizza rule)", "8", "10", "12"], correct: 0 },
+  { q: "Which company invented the 'Post-it Note'?", options: ["Staples", "3M", "HP", "Xerox"], correct: 1 },
+  { q: "What percentage of communication is non-verbal according to research?", options: ["35%", "55%", "70%", "93%"], correct: 3 },
+  { q: "Which year was Slack first released?", options: ["2010", "2013", "2015", "2017"], correct: 1 },
+  { q: "What does MVP stand for in product development?", options: ["Most Valuable Player", "Minimum Viable Product", "Maximum Value Proposition", "Most Versatile Platform"], correct: 1 },
+  { q: "How many hours per week does the average worker spend in meetings?", options: ["5 hours", "10 hours", "15 hours", "23 hours"], correct: 2 },
+  { q: "Who coined the term 'brainstorming'?", options: ["Steve Jobs", "Alex Osborn", "Peter Drucker", "Tim Berners-Lee"], correct: 1 }
+];
+
+const SPEED_EMOJI_TARGETS = ["😀","😎","🤯","🥳","😱","🤔","🫠","🥶","🤩","👻","🤡","💀","🦄","🌈","🔥","⚡","🎯","💎","🚀","🎸"];
+
+const RPS_OPTIONS = [
+  { emoji: "🪨", name: "Rock" },
+  { emoji: "📄", name: "Paper" },
+  { emoji: "✂️", name: "Scissors" }
+];
+
+// --- 1. HOME SCREEN ---
+function Home() {
+  const navigate = useNavigate();
+  const [roomCode, setRoomCode] = useState('');
+
+  const createRoom = () => {
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    set(ref(db, `rooms/${code}`), {
+      gameState: 'lobby',
+      currentActivity: { type: 'waiting' },
+      syncClicks: 0
+    });
+    navigate(`/room/${code}/admin`);
+  };
+
+  const joinRoom = () => {
+    if (roomCode.length === 4) navigate(`/room/${roomCode}/player`);
+  };
+
+  return (
+    <div style={{ padding: '50px', textAlign: 'center', color: 'white', background: '#0a0a0f', minHeight: '100vh' }}>
+      <h1 style={{ fontFamily: 'Syne, sans-serif', color: '#ffb347', fontSize: '42px' }}>Nexus Friday</h1>
+      <p style={{ color: '#9090b0', marginBottom: '40px' }}>Multiplayer Team Culture Engine</p>
+      
+      <button onClick={createRoom} style={{ padding: '15px 30px', margin: '10px', background: '#ff5c35', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>Host New Game</button>
+      <br /><br />
+      <div style={{ display: 'inline-block', background: '#1c1c26', padding: '20px', borderRadius: '15px' }}>
+        <input 
+          placeholder="4-Digit Code" 
+          value={roomCode} 
+          onChange={(e) => setRoomCode(e.target.value)}
+          style={{ padding: '12px', fontSize: '16px', borderRadius: '8px', border: 'none', textAlign: 'center', width: '150px' }}
+        />
+        <br />
+        <button onClick={joinRoom} style={{ padding: '12px 24px', marginTop: '15px', background: '#35d4ff', color: 'black', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' }}>Join Game</button>
+      </div>
+    </div>
+  );
+}
+
+// --- 2. ADMIN DASHBOARD (Controls the Games) ---
+const ALL_GAMES = [
+  { id: 'media_guess', label: '📸 Media Mystery', cat: 'guess', color: '#a855f7' },
+  { id: 'who_said_it', label: '🗣️ Who Said It', cat: 'guess', color: '#ffb347' },
+  { id: 'two_truths', label: '🤥 Two Truths & A Lie', cat: 'guess', color: '#ff5c35' },
+  { id: 'caption_this', label: '✍️ Caption This', cat: 'guess', color: '#e879f9' },
+  { id: 'strength_spotter', label: '💪 Strength Spotter', cat: 'team', color: '#14b8a6' },
+  { id: 'sell_this', label: '🏷️ Sell Me This!', cat: 'team', color: '#f97316' },
+  { id: 'alien_interpreter', label: '👽 Alien Interpreter', cat: 'team', color: '#3b82f6' },
+  { id: 'emoji_decode', label: '🧩 Emoji Decode', cat: 'quiz', color: '#facc15' },
+  { id: 'word_assoc', label: '💬 Word Association', cat: 'quiz', color: '#06b6d4' },
+  { id: 'would_you_rather', label: '🤷 Would You Rather', cat: 'quiz', color: '#ec4899' },
+  { id: 'this_or_that', label: '⚖️ This or That', cat: 'fun', color: '#8b5cf6' },
+  { id: 'team_trivia', label: '🧠 Team Trivia', cat: 'quiz', color: '#f43f5e' },
+  { id: 'speed_emoji', label: '⚡ Speed Emoji React', cat: 'fun', color: '#eab308' },
+  { id: 'emoji_story', label: '📖 Emoji Story Chain', cat: 'fun', color: '#22d3ee' },
+  { id: 'quick_draw', label: '🎨 Quick Draw (Words)', cat: 'fun', color: '#f472b6' },
+  { id: 'rps_battle', label: '🪨 Rock Paper Scissors', cat: 'fun', color: '#a3e635' },
+  { id: 'team_sync', label: '⚡ Team Sync', cat: 'coop', color: '#22c55e' },
+  { id: 'leaderboard', label: '🏆 Leaderboard', cat: 'coop', color: '#35d4ff' },
+];
+
+function AdminPanel() {
+  const { code } = useParams();
+  const [players, setPlayers] = useState({});
+  const [syncClicks, setSyncClicks] = useState(0);
+  const [roomData, setRoomData] = useState(null);
+  const [queue, setQueue] = useState([]);
+  const [queueIndex, setQueueIndex] = useState(-1);
+
+  useEffect(() => {
+    onValue(ref(db, `rooms/${code}`), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setRoomData(data);
+        setPlayers(data.players || {});
+        setSyncClicks(data.syncClicks || 0);
+      }
+    });
+  }, [code]);
+
+  const clearData = {
+    captions: null, captionVotes: null, sellThisPitches: null, sellThisVotes: null, alienGuesses: null,
+    strengthVotes: null, twoTruthGuesses: null, mediaGuesses: null,
+    whoSaidGuesses: null, captionThisGuesses: null, strengthGuesses: null,
+    emojiDecodeAnswers: null, wordAssocAnswers: null, wouldYouRatherVotes: null,
+    thisOrThatVotes: null, triviaAnswers: null, speedEmojiTaps: null,
+    emojiStoryEntries: null, quickDrawAnswers: null, rpsBattleChoices: null,
+  };
+
+  const launchGame = (gameType) => {
+    const playerIds = Object.keys(players);
+    if (playerIds.length === 0) return alert("Waiting for players...");
+    const rand = () => playerIds[Math.floor(Math.random() * playerIds.length)];
+
+    const base = { ...clearData, gameState: 'playing' };
+
+    switch (gameType) {
+      case 'team_sync':
+        return update(ref(db, `rooms/${code}`), { ...base, syncClicks: 0, currentActivity: { type: 'team_sync', targetClicks: Math.floor(Math.random() * 30) + 20 } });
+      case 'leaderboard':
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'leaderboard' } });
+      case 'sell_this': {
+        const item = SELL_THIS_ITEMS[Math.floor(Math.random() * SELL_THIS_ITEMS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'sell_this', item, round: Date.now() } });
+      }
+      case 'alien_interpreter': {
+        const clue = ALIEN_CLUES[Math.floor(Math.random() * ALIEN_CLUES.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'alien_interpreter', clue: clue.clue, answer: clue.answer, round: Date.now() } });
+      }
+      case 'caption_this': {
+        const prompt = CAPTION_PROMPTS[Math.floor(Math.random() * CAPTION_PROMPTS.length)];
+        const imgPlayers = playerIds.filter(id => players[id].mediaType === 'image');
+        const capTarget = imgPlayers.length > 0 ? imgPlayers[Math.floor(Math.random() * imgPlayers.length)] : rand();
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'caption_this', targetId: capTarget, prompt, round: Date.now() } });
+      }
+      case 'emoji_decode': {
+        const p = EMOJI_DECODE_PROMPTS[Math.floor(Math.random() * EMOJI_DECODE_PROMPTS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'emoji_decode', emoji: p.emoji, answer: p.answer, round: Date.now() } });
+      }
+      case 'word_assoc': {
+        const word = WORD_ASSOCIATION_PROMPTS[Math.floor(Math.random() * WORD_ASSOCIATION_PROMPTS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'word_assoc', word, round: Date.now() } });
+      }
+      case 'would_you_rather': {
+        const w = WOULD_YOU_RATHER_PROMPTS[Math.floor(Math.random() * WOULD_YOU_RATHER_PROMPTS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'would_you_rather', optionA: w.a, optionB: w.b, round: Date.now() } });
+      }
+      case 'this_or_that': {
+        const t = THIS_OR_THAT_PROMPTS[Math.floor(Math.random() * THIS_OR_THAT_PROMPTS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'this_or_that', optionA: t.a, optionB: t.b, round: Date.now() } });
+      }
+      case 'team_trivia': {
+        const q = TEAM_TRIVIA_QUESTIONS[Math.floor(Math.random() * TEAM_TRIVIA_QUESTIONS.length)];
+        const optObj = {}; q.options.forEach((o,i) => { optObj[`o${i}`] = o; });
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'team_trivia', question: q.q, options: optObj, correctIndex: q.correct, round: Date.now() } });
+      }
+      case 'speed_emoji': {
+        const target = SPEED_EMOJI_TARGETS[Math.floor(Math.random() * SPEED_EMOJI_TARGETS.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'speed_emoji', targetEmoji: target, round: Date.now() } });
+      }
+      case 'emoji_story': {
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'emoji_story', round: Date.now() } });
+      }
+      case 'quick_draw': {
+        const subjects = ["A cat wearing a hat","Your team's Monday morning","The office coffee machine","A meeting that could've been an email","Your happy place","The internet","Friday vibes","Debugging at 3 AM"];
+        const subj = subjects[Math.floor(Math.random() * subjects.length)];
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'quick_draw', subject: subj, round: Date.now() } });
+      }
+      case 'rps_battle': {
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: 'rps_battle', round: Date.now() } });
+      }
+      default:
+        return update(ref(db, `rooms/${code}`), { ...base, currentActivity: { type: gameType, targetId: rand() } });
+    }
+  };
+
+  const triggerGame = (gameType) => launchGame(gameType);
+
+  const addToQueue = (gameId) => {
+    setQueue(prev => [...prev, gameId]);
+  };
+  const removeFromQueue = (idx) => {
+    setQueue(prev => prev.filter((_, i) => i !== idx));
+    if (queueIndex >= idx && queueIndex > 0) setQueueIndex(queueIndex - 1);
+  };
+  const playNext = () => {
+    const next = queueIndex + 1;
+    if (next < queue.length) {
+      setQueueIndex(next);
+      launchGame(queue[next]);
+    } else {
+      alert("🎉 Session complete! All queued games played.");
+    }
+  };
+  const startSession = () => {
+    if (queue.length === 0) return alert("Add games to the queue first!");
+    setQueueIndex(0);
+    launchGame(queue[0]);
+  };
+
+  // Build live activity monitor
+  const activity = roomData?.currentActivity || {};
+  const playersArray = Object.entries(players).map(([id, data]) => ({ id, ...data }));
+  const targetPlayer = playersArray.find(p => p.id === activity.targetId);
+
+  const gameLabels = {};
+  ALL_GAMES.forEach(g => { gameLabels[g.id] = g.label; });
+
+  const renderActivityMonitor = () => {
+    if (!activity.type || activity.type === 'waiting') {
+      return <p style={{ color: '#9090b0' }}>No active game. Pick one above or start a session!</p>;
+    }
+
+    return (
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+          <span style={{ background: '#22c55e', width: '10px', height: '10px', borderRadius: '50%', display: 'inline-block' }}></span>
+          <strong style={{ color: '#22c55e', fontSize: '18px' }}>{gameLabels[activity.type] || activity.type}</strong>
+          {targetPlayer && <span style={{ color: '#9090b0' }}>— Target: <strong style={{ color: '#35d4ff' }}>{targetPlayer.name}</strong></span>}
+        </div>
+
+        {/* Media Guess / Who Said It */}
+        {(activity.type === 'media_guess' || activity.type === 'who_said_it') && (
+          <div>
+            {activity.type === 'who_said_it' && targetPlayer && (
+              <div style={{ background: '#1a1a2e', padding: '10px 15px', borderRadius: '8px', marginBottom: '10px', borderLeft: '3px solid #ffb347' }}>
+                <span style={{ color: '#9090b0', fontSize: '12px' }}>Q: {targetPlayer.secretQuestion}</span><br />
+                <span style={{ color: '#ffb347', fontWeight: 'bold' }}>A: "{targetPlayer.secretAnswer}"</span>
+              </div>
+            )}
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Correct: <strong style={{ color: '#22c55e' }}>{targetPlayer?.name}</strong></p>
+            {roomData?.mediaGuesses && activity.type === 'media_guess' && Object.entries(roomData.mediaGuesses).map(([pid, g]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> guessed <strong>{g.guessedName}</strong> {g.correct ? '✅' : '❌'}</div>;
+            })}
+            {roomData?.whoSaidGuesses && activity.type === 'who_said_it' && Object.entries(roomData.whoSaidGuesses).map(([pid, g]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> guessed <strong>{g.guessedName}</strong> {g.correct ? '✅' : '❌'}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Two Truths */}
+        {activity.type === 'two_truths' && targetPlayer && (
+          <div>
+            {targetPlayer.statements && Object.values(targetPlayer.statements).map((s, i) => (
+              <div key={i} style={{ padding: '6px 12px', margin: '3px 0', borderRadius: '6px', background: s.isLie ? '#3b1111' : '#112e1b', border: s.isLie ? '1px solid #ef4444' : '1px solid #22c55e', fontSize: '13px' }}>
+                {s.isLie ? '❌ LIE' : '✅ TRUE'}: {s.text}
+              </div>
+            ))}
+            {roomData?.twoTruthGuesses && Object.entries(roomData.twoTruthGuesses).map(([pid, g]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> {g.correct ? '🎯 Found the lie!' : '😅 Picked a truth'}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Caption This */}
+        {activity.type === 'caption_this' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Prompt: <em>"{activity.prompt}"</em></p>
+            {targetPlayer?.mediaType === 'image' && <img src={targetPlayer.mediaUrl} alt="target" style={{ width: '120px', borderRadius: '8px', margin: '10px 0' }} />}
+            {roomData?.captions ? Object.entries(roomData.captions).map(([pid, cap]) => {
+              const p = playersArray.find(x => x.id === pid);
+              const voteCount = roomData?.captionVotes ? Object.values(roomData.captionVotes).filter(v => v === pid).length : 0;
+              return <div key={pid} style={{ ...adminResponseStyle, borderLeft: '3px solid #e879f9' }}><strong style={{ color: '#e879f9' }}>{p?.name || pid}:</strong> "{cap}" {voteCount > 0 && <span style={{ color: '#facc15' }}>⭐ {voteCount} vote(s)</span>}</div>;
+            }) : <p style={{ color: '#555', fontSize: '13px' }}>No captions yet...</p>}
+          </div>
+        )}
+
+        {/* Sell Me This */}
+        {activity.type === 'sell_this' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Item: <strong style={{ color: '#f97316' }}>{activity.item}</strong></p>
+            {roomData?.sellThisPitches ? Object.entries(roomData.sellThisPitches).map(([pid, pitch]) => {
+              const p = playersArray.find(x => x.id === pid);
+              const voteCount = roomData?.sellThisVotes ? Object.values(roomData.sellThisVotes).filter(v => v === pid).length : 0;
+              return <div key={pid} style={{ ...adminResponseStyle, borderLeft: '3px solid #f97316' }}><strong style={{ color: '#f97316' }}>{p?.name || pid}:</strong> "{pitch}" {voteCount > 0 && <span style={{ color: '#facc15' }}>⭐ {voteCount} vote(s)</span>}</div>;
+            }) : <p style={{ color: '#555', fontSize: '13px' }}>No pitches yet...</p>}
+          </div>
+        )}
+
+        {/* Alien Interpreter */}
+        {activity.type === 'alien_interpreter' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Clue: "{activity.clue}"</p>
+            <p style={{ color: '#22c55e', fontSize: '12px' }}>Answer: <strong>{activity.answer}</strong></p>
+            {roomData?.alienGuesses && Object.entries(roomData.alienGuesses).map(([pid, g]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> "{g.guess}" {g.correct ? '✅' : '❌'}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Strength Spotter */}
+        {activity.type === 'strength_spotter' && targetPlayer && (
+          <div>
+            <div style={{ background: '#1a1a2e', padding: '10px', borderRadius: '8px', margin: '8px 0', borderLeft: '3px solid #14b8a6' }}>
+              <span style={{ fontSize: '12px', color: '#9090b0' }}>Strength:</span> <strong style={{ color: '#14b8a6' }}>"{targetPlayer.myStrength}"</strong><br />
+              <span style={{ fontSize: '12px', color: '#9090b0' }}>Weakness:</span> <strong style={{ color: '#f97316' }}>"{targetPlayer.myWeakness}"</strong>
+            </div>
+            {roomData?.strengthGuesses && Object.entries(roomData.strengthGuesses).map(([pid, g]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> guessed {g.guessedName} {g.correct ? '✅' : '❌'}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Emoji Decode */}
+        {activity.type === 'emoji_decode' && (
+          <div>
+            <p style={{ fontSize: '28px', margin: '5px 0' }}>{activity.emoji}</p>
+            <p style={{ color: '#22c55e', fontSize: '13px' }}>Answer: <strong>{activity.answer}</strong></p>
+            {roomData?.emojiDecodeAnswers && Object.entries(roomData.emojiDecodeAnswers).map(([pid, a]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> "{a}"</div>;
+            })}
+          </div>
+        )}
+
+        {/* Word Association */}
+        {activity.type === 'word_assoc' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Word: <strong style={{ color: '#06b6d4' }}>{activity.word}</strong></p>
+            {roomData?.wordAssocAnswers && Object.entries(roomData.wordAssocAnswers).map(([pid, a]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> "{a}"</div>;
+            })}
+          </div>
+        )}
+
+        {/* Would You Rather */}
+        {activity.type === 'would_you_rather' && roomData?.wouldYouRatherVotes && (() => {
+          const votes = Object.entries(roomData.wouldYouRatherVotes);
+          const aCount = votes.filter(([,v]) => v === 'A').length;
+          const bCount = votes.filter(([,v]) => v === 'B').length;
+          return <div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', margin: '8px 0' }}>
+              <span style={{ color: '#ec4899' }}>A: {aCount}</span><span style={{ color: '#8b5cf6' }}>B: {bCount}</span>
+            </div>
+            {votes.map(([pid, v]) => { const p = playersArray.find(x => x.id === pid); return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> {v === 'A' ? activity.optionA : activity.optionB}</div>; })}
+          </div>;
+        })()}
+
+        {/* This or That */}
+        {activity.type === 'this_or_that' && roomData?.thisOrThatVotes && (() => {
+          const votes = Object.entries(roomData.thisOrThatVotes);
+          const aCount = votes.filter(([,v]) => v === 'A').length;
+          const bCount = votes.filter(([,v]) => v === 'B').length;
+          return <div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', margin: '8px 0' }}>
+              <span style={{ color: '#8b5cf6' }}>A: {aCount}</span><span style={{ color: '#a855f7' }}>B: {bCount}</span>
+            </div>
+            {votes.map(([pid, v]) => { const p = playersArray.find(x => x.id === pid); return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> {v === 'A' ? activity.optionA : activity.optionB}</div>; })}
+          </div>;
+        })()}
+
+        {/* Team Trivia */}
+        {activity.type === 'team_trivia' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Q: {activity.question}</p>
+            <p style={{ color: '#22c55e', fontSize: '12px' }}>Correct: {activity.options ? Object.values(activity.options)[activity.correctIndex] : ''}</p>
+            {roomData?.triviaAnswers && Object.entries(roomData.triviaAnswers).map(([pid, a]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> {a.answer} {a.correct ? '✅' : '❌'}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Speed Emoji */}
+        {activity.type === 'speed_emoji' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Target: <span style={{ fontSize: '28px' }}>{activity.targetEmoji}</span></p>
+            {roomData?.speedEmojiTaps && Object.entries(roomData.speedEmojiTaps).sort(([,a],[,b]) => a - b).map(([pid, ms], i) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`} <strong>{p?.name || pid}</strong> — {ms}ms</div>;
+            })}
+          </div>
+        )}
+
+        {/* Emoji Story Chain */}
+        {activity.type === 'emoji_story' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Story so far:</p>
+            {roomData?.emojiStoryEntries && Object.entries(roomData.emojiStoryEntries).map(([pid, e]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> <span style={{ fontSize: '20px' }}>{e}</span></div>;
+            })}
+          </div>
+        )}
+
+        {/* Quick Draw */}
+        {activity.type === 'quick_draw' && (
+          <div>
+            <p style={{ color: '#9090b0', fontSize: '13px' }}>Subject: <strong style={{ color: '#f472b6' }}>"{activity.subject}"</strong></p>
+            {roomData?.quickDrawAnswers && Object.entries(roomData.quickDrawAnswers).map(([pid, a]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={{ ...adminResponseStyle, borderLeft: '3px solid #f472b6' }}><strong>{p?.name || pid}:</strong> "{a}"</div>;
+            })}
+          </div>
+        )}
+
+        {/* RPS Battle */}
+        {activity.type === 'rps_battle' && (
+          <div>
+            {roomData?.rpsBattleChoices && Object.entries(roomData.rpsBattleChoices).map(([pid, c]) => {
+              const p = playersArray.find(x => x.id === pid);
+              return <div key={pid} style={adminResponseStyle}><strong>{p?.name || pid}:</strong> {c}</div>;
+            })}
+          </div>
+        )}
+
+        {/* Team Sync */}
+        {activity.type === 'team_sync' && (
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: '#9090b0', fontSize: '14px' }}>Target: <strong>{activity.targetClicks}</strong> | Current: <strong style={{ color: syncClicks >= activity.targetClicks ? '#22c55e' : '#35d4ff', fontSize: '24px' }}>{syncClicks}</strong></p>
+            {syncClicks >= activity.targetClicks && <p style={{ color: '#22c55e', fontWeight: 'bold' }}>🎉 TARGET REACHED!</p>}
+          </div>
+        )}
+
+        {/* Leaderboard */}
+        {activity.type === 'leaderboard' && playersArray.sort((a,b) => b.score - a.score).map((p, i) => (
+          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', background: '#1a1a2e', borderRadius: '6px', margin: '3px 0' }}>
+            <span>{i === 0 ? '👑' : (i+1)+'.'} {p.name}</span>
+            <span style={{ color: '#35d4ff', fontWeight: 'bold' }}>{p.score}</span>
+          </div>
+        ))}
+
+        {/* Responded count */}
+        {(() => {
+          const responseMap = {
+            media_guess: roomData?.mediaGuesses, who_said_it: roomData?.whoSaidGuesses,
+            two_truths: roomData?.twoTruthGuesses, caption_this: roomData?.captions,
+            sell_this: roomData?.sellThisPitches, alien_interpreter: roomData?.alienGuesses,
+            strength_spotter: roomData?.strengthGuesses, emoji_decode: roomData?.emojiDecodeAnswers,
+            word_assoc: roomData?.wordAssocAnswers, would_you_rather: roomData?.wouldYouRatherVotes,
+            this_or_that: roomData?.thisOrThatVotes, team_trivia: roomData?.triviaAnswers,
+            speed_emoji: roomData?.speedEmojiTaps, emoji_story: roomData?.emojiStoryEntries,
+            quick_draw: roomData?.quickDrawAnswers, rps_battle: roomData?.rpsBattleChoices,
+          };
+          const responses = responseMap[activity.type];
+          if (!responses) return null;
+          return <p style={{ color: '#9090b0', fontSize: '12px', marginTop: '8px' }}>Responded: {Object.keys(responses).length} / {playersArray.length}</p>;
+        })()}
+      </div>
+    );
+  };
+
+  const categories = [
+    { key: 'guess', title: 'Guessing Games' },
+    { key: 'team', title: 'Team Strength & Culture' },
+    { key: 'quiz', title: 'Q&A / Trivia' },
+    { key: 'fun', title: 'Fun & Interactive (No Setup)' },
+    { key: 'coop', title: 'Co-op & Scoreboard' },
+  ];
+
+  return (
+    <div style={{ padding: '30px', color: 'white', background: '#13131a', minHeight: '100vh' }}>
+      <h2>Admin Panel - Room: <span style={{ color: '#35d4ff' }}>{code}</span></h2>
+      <p style={{ color: '#9090b0' }}>Play one-off games or build a session queue.</p>
+
+      {/* Game Buttons by Category */}
+      {categories.map(cat => (
+        <div key={cat.key}>
+          <h3 style={{ color: '#9090b0', marginTop: '20px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>{cat.title}</h3>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '8px 0' }}>
+            {ALL_GAMES.filter(g => g.cat === cat.key).map(g => (
+              <div key={g.id} style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={() => triggerGame(g.id)} style={adminBtnStyle(g.color)} title="Play now">{g.label}</button>
+                <button onClick={() => addToQueue(g.id)} style={{ background: '#333', color: '#9090b0', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: '4px 8px', fontSize: '16px' }} title="Add to session queue">+</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Session Queue */}
+      <div style={{ border: '1px solid #444', padding: '15px', borderRadius: '12px', background: '#1c1c26', marginTop: '20px' }}>
+        <h3 style={{ marginBottom: '10px' }}>🎬 Session Queue ({queue.length} games)</h3>
+        {queue.length === 0 ? (
+          <p style={{ color: '#555', fontSize: '13px' }}>Click the <strong>+</strong> next to any game to build a playlist.</p>
+        ) : (
+          <div>
+            {queue.map((gId, i) => {
+              const g = ALL_GAMES.find(x => x.id === gId);
+              const isActive = i === queueIndex;
+              const isDone = i < queueIndex;
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', margin: '4px 0', background: isActive ? '#1a3a1a' : isDone ? '#1a1a2e' : '#252533', borderRadius: '8px', border: isActive ? '1px solid #22c55e' : '1px solid transparent' }}>
+                  <span style={{ color: isDone ? '#555' : isActive ? '#22c55e' : '#9090b0', fontSize: '13px', width: '22px' }}>{isDone ? '✅' : isActive ? '▶️' : `${i+1}.`}</span>
+                  <span style={{ flex: 1, color: isDone ? '#555' : 'white', fontSize: '14px' }}>{g?.label || gId}</span>
+                  <button onClick={() => removeFromQueue(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}>✕</button>
+                </div>
+              );
+            })}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+              {queueIndex < 0 ? (
+                <button onClick={startSession} style={{ padding: '10px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>▶ Start Session</button>
+              ) : (
+                <button onClick={playNext} style={{ padding: '10px 20px', background: queueIndex + 1 >= queue.length ? '#555' : '#35d4ff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                  {queueIndex + 1 >= queue.length ? '🎉 Session Done' : `⏭ Next Game (${queueIndex + 2}/${queue.length})`}
+                </button>
+              )}
+              <button onClick={() => { setQueue([]); setQueueIndex(-1); }} style={{ padding: '10px 20px', background: '#333', color: '#9090b0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Clear Queue</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Live Activity Monitor */}
+      <div style={{ border: '1px solid #333', padding: '20px', borderRadius: '12px', background: '#1c1c26', marginTop: '15px' }}>
+        <h3 style={{ marginBottom: '15px' }}>🔴 Live Activity Monitor</h3>
+        {renderActivityMonitor()}
+      </div>
+
+      {/* Players List */}
+      <div style={{ border: '1px solid #333', padding: '20px', borderRadius: '12px', background: '#1c1c26', marginTop: '15px' }}>
+        <h3>Players ({Object.keys(players).length}) | Sync: {syncClicks}</h3>
+        {Object.entries(players).map(([id, p]) => (
+          <div key={id} style={{ margin: '8px 0', padding: '10px', background: '#252533', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div><strong>{p.name}</strong> <span style={{ color: '#9090b0', fontSize: '12px', marginLeft: '8px' }}>Score: {p.score}</span></div>
+            <span>{p.isReady ? '✅' : '⏳'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+const adminBtnStyle = (color) => ({ padding: '10px 14px', background: color, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' });
+const adminResponseStyle = { padding: '6px 12px', margin: '4px 0', background: '#1a1a2e', borderRadius: '6px', fontSize: '13px' };
+
+// --- 3. PLAYER SETUP (CLOUDINARY & SECRET Q) ---
+function PlayerSetup({ code, onReady }) {
+  const [name, setName] = useState('');
+  const [file, setFile] = useState(null);
+  const [secretQ, setSecretQ] = useState('');
+  const [secretA, setSecretA] = useState('');
+  const [truth1, setTruth1] = useState('');
+  const [truth2, setTruth2] = useState('');
+  const [lie, setLie] = useState('');
+  const [myStrengths, setMyStrengths] = useState([]);
+  const [myWeaknesses, setMyWeaknesses] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
+  const toggleChip = (item, list, setList) => {
+    setList(prev => prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item]);
+  };
+
+  useEffect(() => {
+    setSecretQ(SECRET_QUESTIONS[Math.floor(Math.random() * SECRET_QUESTIONS.length)]);
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!name || !file || !secretA || !truth1 || !truth2 || !lie || myStrengths.length === 0 || myWeaknesses.length === 0) return alert("Please fill out everything! Select at least one strength and one weakness.");
+    setUploading(true);
+    
+    const playerId = `player_${Math.random().toString(36).substr(2, 9)}`;
+    const mediaType = file.type.split('/')[0]; 
+
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    formData.append("upload_preset", "friday_game"); 
+    const cloudName = "dsti0gxty"; 
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+        method: "POST",
+        body: formData
+      });
+      const uploadedData = await res.json();
+      const fileUrl = uploadedData.secure_url;
+
+      // Shuffle truths & lie so the lie position is random
+      const shuffled = [
+        { text: truth1, isLie: false },
+        { text: truth2, isLie: false },
+        { text: lie, isLie: true }
+      ].sort(() => Math.random() - 0.5);
+
+      // Store as keyed object to avoid Firebase array conversion issues
+      const statementsObj = {};
+      shuffled.forEach((s, i) => { statementsObj[`s${i}`] = s; });
+
+      await set(ref(db, `rooms/${code}/players/${playerId}`), {
+        name: name,
+        score: 0,
+        mediaUrl: fileUrl,
+        mediaType: mediaType,
+        secretQuestion: secretQ,
+        secretAnswer: secretA,
+        statements: statementsObj,
+        myStrength: myStrengths.join(', '),
+        myWeakness: myWeaknesses.join(', '),
+        isReady: true
+      });
+      
+      setUploading(false);
+      onReady(playerId);
+
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to upload. Check Cloudinary settings.");
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: '30px', textAlign: 'center', background: '#1c1c26', borderRadius: '15px', maxWidth: '420px', margin: '40px auto' }}>
+      <h2 style={{ color: '#a855f7' }}>The Locker Room</h2>
+      
+      <input placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+      
+      <div style={{ background: '#252533', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+        <p style={{ fontSize: '13px', color: '#ffb347', fontWeight: 'bold' }}>Secret Question:</p>
+        <p style={{ fontSize: '16px', margin: '10px 0' }}>{secretQ}</p>
+        <input placeholder="Your honest answer..." value={secretA} onChange={e => setSecretA(e.target.value)} style={inputStyle} />
+      </div>
+
+      <div style={{ background: '#252533', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+        <p style={{ fontSize: '13px', color: '#22c55e', fontWeight: 'bold' }}>Two Truths & One Lie:</p>
+        <p style={{ fontSize: '12px', color: '#9090b0' }}>Write 2 true facts and 1 convincing lie about yourself.</p>
+        <input placeholder="Truth #1" value={truth1} onChange={e => setTruth1(e.target.value)} style={inputStyle} />
+        <input placeholder="Truth #2" value={truth2} onChange={e => setTruth2(e.target.value)} style={inputStyle} />
+        <input placeholder="The Lie 🤥" value={lie} onChange={e => setLie(e.target.value)} style={{ ...inputStyle, borderBottom: '2px solid #ff5c35' }} />
+      </div>
+
+      <div style={{ background: '#252533', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+        <p style={{ fontSize: '13px', color: '#14b8a6', fontWeight: 'bold' }}>My Strengths <span style={{ color: '#ef4444' }}>*</span></p>
+        <p style={{ fontSize: '12px', color: '#9090b0' }}>Select at least one. Others will guess whose these are!</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px', justifyContent: 'center' }}>
+          {STRENGTH_OPTIONS.map(opt => (
+            <button key={opt} type="button" onClick={() => toggleChip(opt, myStrengths, setMyStrengths)} style={{ padding: '8px 12px', borderRadius: '20px', border: myStrengths.includes(opt) ? '2px solid #14b8a6' : '1px solid #5a5a78', background: myStrengths.includes(opt) ? '#0d3d38' : '#1c1c26', color: myStrengths.includes(opt) ? '#14b8a6' : '#9090b0', cursor: 'pointer', fontSize: '12px', fontWeight: myStrengths.includes(opt) ? 'bold' : 'normal', transition: 'all 0.15s' }}>
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#252533', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+        <p style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>Areas to Improve <span style={{ color: '#ef4444' }}>*</span></p>
+        <p style={{ fontSize: '12px', color: '#9090b0' }}>Select at least one thing you want to work on.</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px', justifyContent: 'center' }}>
+          {WEAKNESS_OPTIONS.map(opt => (
+            <button key={opt} type="button" onClick={() => toggleChip(opt, myWeaknesses, setMyWeaknesses)} style={{ padding: '8px 12px', borderRadius: '20px', border: myWeaknesses.includes(opt) ? '2px solid #f97316' : '1px solid #5a5a78', background: myWeaknesses.includes(opt) ? '#3d2208' : '#1c1c26', color: myWeaknesses.includes(opt) ? '#f97316' : '#9090b0', cursor: 'pointer', fontSize: '12px', fontWeight: myWeaknesses.includes(opt) ? 'bold' : 'normal', transition: 'all 0.15s' }}>
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#252533', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+        <p style={{ fontSize: '13px', color: '#35d4ff', fontWeight: 'bold' }}>Upload Media Mystery:</p>
+        <p style={{ fontSize: '12px', color: '#9090b0' }}>A photo of your desk, a pet, a voice clip, or a short video.</p>
+        <input type="file" accept="image/*,video/*,audio/*" onChange={e => setFile(e.target.files[0])} style={{ marginTop: '10px' }} />
+      </div>
+      
+      <button onClick={handleSubmit} disabled={uploading} style={{ padding: '15px', background: uploading ? '#555' : '#a855f7', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', width: '100%', fontWeight: 'bold', marginTop: '20px' }}>
+        {uploading ? 'Uploading...' : 'I am Ready!'}
+      </button>
+    </div>
+  );
+}
+const inputStyle = { padding: '12px', width: '90%', borderRadius: '8px', border: 'none', marginTop: '10px' };
+
+// --- 4. GAME BOARD (Dynamic Engine) ---
+function GameBoard({ roomCode, roomData, myPlayerId }) {
+  const [hasGuessed, setHasGuessed] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [caption, setCaption] = useState('');
+  const [captionSent, setCaptionSent] = useState(false);
+  const [captions, setCaptions] = useState({});
+  const [strengthGuesses, setStrengthGuesses] = useState({});
+  const [textAnswer, setTextAnswer] = useState('');
+  const [answerSent, setAnswerSent] = useState(false);
+  const [liveAnswers, setLiveAnswers] = useState({});
+  const [emojiGrid, setEmojiGrid] = useState([]);
+  const [emojiStartTime, setEmojiStartTime] = useState(0);
+  const [storyEmoji, setStoryEmoji] = useState('');
+  const [liveStory, setLiveStory] = useState({});
+  
+  const activity = roomData.currentActivity;
+  const activityRound = activity.round || activity.targetId || activity.type;
+
+  // Reset state when activity changes
+  useEffect(() => {
+    setHasGuessed(false);
+    setHasVoted(false);
+    setCaption('');
+    setCaptionSent(false);
+    setTextAnswer('');
+    setAnswerSent(false);
+    setLiveAnswers({});
+    setStoryEmoji('');
+    setLiveStory({});
+  }, [activityRound]);
+
+  // Generate emoji grid for speed_emoji
+  useEffect(() => {
+    if (activity.type === 'speed_emoji') {
+      const distractors = SPEED_EMOJI_TARGETS.filter(e => e !== activity.targetEmoji);
+      const grid = Array.from({ length: 24 }, () => distractors[Math.floor(Math.random() * distractors.length)]);
+      grid[Math.floor(Math.random() * grid.length)] = activity.targetEmoji;
+      setEmojiGrid(grid);
+      setEmojiStartTime(Date.now());
+    }
+  }, [activity.type, activity.targetEmoji, activityRound]);
+
+  // Listen for live results for poll-type games
+  useEffect(() => {
+    if (activity.type === 'caption_this') {
+      return onValue(ref(db, `rooms/${roomCode}/captions`), (snap) => {
+        if (snap.exists()) setCaptions(snap.val());
+      });
+    }
+    if (activity.type === 'strength_spotter') {
+      return onValue(ref(db, `rooms/${roomCode}/strengthGuesses`), (snap) => {
+        if (snap.exists()) setStrengthGuesses(snap.val());
+      });
+    }
+    if (activity.type === 'sell_this') {
+      return onValue(ref(db, `rooms/${roomCode}/sellThisPitches`), (snap) => {
+        if (snap.exists()) setLiveAnswers(snap.val());
+      });
+    }
+    if (activity.type === 'word_assoc') {
+      return onValue(ref(db, `rooms/${roomCode}/wordAssocAnswers`), (snap) => {
+        if (snap.exists()) setLiveAnswers(snap.val());
+      });
+    }
+    if (activity.type === 'emoji_story') {
+      return onValue(ref(db, `rooms/${roomCode}/emojiStoryEntries`), (snap) => {
+        if (snap.exists()) setLiveStory(snap.val());
+      });
+    }
+    if (activity.type === 'quick_draw') {
+      return onValue(ref(db, `rooms/${roomCode}/quickDrawAnswers`), (snap) => {
+        if (snap.exists()) setLiveAnswers(snap.val());
+      });
+    }
+  }, [roomCode, activity.type]);
+
+  const playersArray = Object.entries(roomData.players || {}).map(([id, data]) => ({ id, ...data }));
+  const targetPlayer = playersArray.find(p => p.id === activity.targetId);
+
+  const handleGuess = (guessedId) => {
+    if (hasGuessed) return;
+    setHasGuessed(true);
+    const correct = guessedId === targetPlayer.id;
+    const guessedPlayer = playersArray.find(p => p.id === guessedId);
+    
+    if (correct) {
+      alert("🎯 Correct!");
+      update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(100) });
+    } else {
+      alert(`😅 Wrong! It was ${targetPlayer.name}.`);
+    }
+
+    // Log guess for admin
+    const guessKey = activity.type === 'media_guess' ? 'mediaGuesses' : 'whoSaidGuesses';
+    set(ref(db, `rooms/${roomCode}/${guessKey}/${myPlayerId}`), {
+      guessedName: guessedPlayer?.name || 'Unknown',
+      correct: correct
+    });
+  };
+
+  const handleSyncTap = () => {
+    update(ref(db, `rooms/${roomCode}`), { syncClicks: increment(1) });
+  };
+
+  // ---- LEADERBOARD ----
+  if (activity.type === 'leaderboard') {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{ color: '#ffd700', fontSize: '36px' }}>🏆 Leaderboard 🏆</h2>
+        {playersArray.sort((a,b) => b.score - a.score).map((p, i) => (
+          <div key={p.id} style={{ padding: '15px', background: '#1c1c26', margin: '10px auto', maxWidth: '300px', borderRadius: '10px', fontSize: '20px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>{i === 0 ? '👑' : i+1+'.'} {p.name}</span>
+            <span style={{ color: '#35d4ff', fontWeight: 'bold' }}>{p.score}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // ---- TEAM SYNC ----
+  if (activity.type === 'team_sync') {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{ color: '#22c55e' }}>⚡ Team Sync ⚡</h2>
+        <p>Target: <strong style={{ fontSize: '24px', color: 'white' }}>{activity.targetClicks}</strong> clicks total.</p>
+        <p style={{ color: '#9090b0' }}>Communicate! Click the button as a team.</p>
+        <div style={{ margin: '40px 0' }}>
+          <button onClick={handleSyncTap} style={{ width: '150px', height: '150px', borderRadius: '50%', background: 'linear-gradient(135deg, #35d4ff, #a855f7)', color: 'white', fontSize: '32px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 0 30px rgba(53,212,255,0.4)' }}>
+            TAP
+          </button>
+        </div>
+        <h1 style={{ fontSize: '48px', margin: '0' }}>{roomData.syncClicks}</h1>
+      </div>
+    );
+  }
+
+  // ---- SELL ME THIS! (Creative Pitch + Voting) ----
+  if (activity.type === 'sell_this') {
+    const pitchList = Object.entries(liveAnswers);
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#f97316' }}>🏷️ Sell Me This!</h2>
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', margin: '20px 0', borderLeft: '5px solid #f97316' }}>
+          <p style={{ color: '#9090b0', textTransform: 'uppercase', fontSize: '12px' }}>Your product:</p>
+          <h1 style={{ fontSize: '28px', color: '#f97316', margin: '10px 0' }}>{activity.item}</h1>
+          <p style={{ color: '#9090b0', fontSize: '14px' }}>Write a marketing pitch or slogan to sell this absurd item!</p>
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="Your marketing pitch..." value={textAnswer} onChange={e => setTextAnswer(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!textAnswer.trim()} onClick={() => {
+              set(ref(db, `rooms/${roomCode}/sellThisPitches/${myPlayerId}`), textAnswer);
+              setAnswerSent(true);
+            }} style={{ padding: '12px 30px', background: !textAnswer.trim() ? '#555' : '#f97316', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit Pitch
+            </button>
+          </div>
+        ) : !hasVoted ? (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px', marginTop: '15px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold', marginBottom: '15px' }}>✅ Pitch submitted!</p>
+            <p style={{ color: '#9090b0', marginBottom: '10px' }}>Vote for the BEST pitch (not yours):</p>
+            {pitchList.filter(([pid]) => pid !== myPlayerId).map(([pid, pitch]) => {
+              const author = playersArray.find(p => p.id === pid);
+              return (
+                <button key={pid} onClick={() => {
+                  set(ref(db, `rooms/${roomCode}/sellThisVotes/${myPlayerId}`), pid);
+                  setHasVoted(true);
+                  update(ref(db, `rooms/${roomCode}/players/${pid}`), { score: increment(100) });
+                }} style={{ display: 'block', width: '100%', padding: '15px', marginTop: '8px', background: '#1c1c26', color: 'white', border: '2px solid #5a5a78', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '14px' }}>
+                  <strong style={{ color: '#f97316' }}>{author?.name || 'Someone'}:</strong> "{pitch}"
+                </button>
+              );
+            })}
+            {pitchList.filter(([pid]) => pid !== myPlayerId).length === 0 && (
+              <p style={{ color: '#555', fontSize: '13px' }}>Waiting for others to submit their pitches...</p>
+            )}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px', marginTop: '15px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Voted! Waiting for admin to advance...</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- ALIEN INTERPRETER (Guess what the alien is describing) ----
+  if (activity.type === 'alien_interpreter') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#3b82f6' }}>👽 Alien Interpreter</h2>
+        <p style={{ color: '#9090b0' }}>An alien is describing something from Earth. Can you figure out what it is?</p>
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', margin: '20px 0', borderLeft: '5px solid #3b82f6' }}>
+          <p style={{ fontSize: '18px', lineHeight: '1.6', fontStyle: 'italic', color: '#e2e8f0' }}>"{activity.clue}"</p>
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="What is the alien describing?" value={textAnswer} onChange={e => setTextAnswer(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!textAnswer.trim()} onClick={() => {
+              const guess = textAnswer.trim();
+              const correct = guess.toLowerCase() === activity.answer.toLowerCase();
+              set(ref(db, `rooms/${roomCode}/alienGuesses/${myPlayerId}`), { guess, correct });
+              setAnswerSent(true);
+              if (correct) {
+                alert("🎯 Correct! You speak alien!");
+                update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(200) });
+              } else {
+                alert(`❌ Not quite! The answer was: ${activity.answer}`);
+              }
+            }} style={{ padding: '12px 30px', background: !textAnswer.trim() ? '#555' : '#3b82f6', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Guess
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Submitted!</p>
+            <p style={{ color: '#9090b0', fontSize: '14px', marginTop: '8px' }}>Answer: <strong style={{ color: '#3b82f6' }}>{activity.answer}</strong></p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- CAPTION THIS (with voting) ----
+  if (activity.type === 'caption_this') {
+    const captionList = Object.entries(captions);
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#e879f9' }}>✍️ Caption This!</h2>
+        <p style={{ color: '#ffb347', fontWeight: 'bold' }}>{activity.prompt}</p>
+        {targetPlayer && (
+          <div style={{ background: '#1c1c26', padding: '20px', borderRadius: '15px', margin: '15px 0' }}>
+            {targetPlayer.mediaType === 'image' && <img src={targetPlayer.mediaUrl} alt="Caption target" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
+            {targetPlayer.mediaType === 'video' && <video src={targetPlayer.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+            {targetPlayer.mediaType === 'audio' && <audio src={targetPlayer.mediaUrl} controls style={{ width: '100%' }} />}
+          </div>
+        )}
+        {!captionSent ? (
+          <div>
+            <input placeholder="Type your caption..." value={caption} onChange={e => setCaption(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!caption.trim()} onClick={() => { set(ref(db, `rooms/${roomCode}/captions/${myPlayerId}`), caption); setCaptionSent(true); }} style={{ padding: '12px 30px', background: !caption.trim() ? '#555' : '#e879f9', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit Caption
+            </button>
+          </div>
+        ) : !hasVoted ? (
+          <div style={{ background: '#252533', padding: '15px', borderRadius: '12px', marginTop: '15px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold', marginBottom: '15px' }}>✅ Caption submitted!</p>
+            <p style={{ color: '#9090b0', marginBottom: '10px' }}>Vote for the BEST caption (not yours):</p>
+            {captionList.filter(([pid]) => pid !== myPlayerId).map(([pid, cap]) => {
+              const author = playersArray.find(p => p.id === pid);
+              return (
+                <button key={pid} onClick={() => {
+                  set(ref(db, `rooms/${roomCode}/captionVotes/${myPlayerId}`), pid);
+                  setHasVoted(true);
+                  update(ref(db, `rooms/${roomCode}/players/${pid}`), { score: increment(100) });
+                }} style={{ display: 'block', width: '100%', padding: '12px', marginTop: '6px', background: '#1c1c26', color: 'white', border: '2px solid #5a5a78', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '14px' }}>
+                  <strong style={{ color: '#e879f9' }}>{author?.name || 'Someone'}:</strong> "{cap}"
+                </button>
+              );
+            })}
+            {captionList.filter(([pid]) => pid !== myPlayerId).length === 0 && (
+              <p style={{ color: '#555', fontSize: '13px' }}>Waiting for others to submit...</p>
+            )}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '15px', borderRadius: '12px', marginTop: '15px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Voted! Waiting for admin...</p>
+            {captionList.length > 0 && (
+              <div style={{ marginTop: '15px', textAlign: 'left' }}>
+                <p style={{ color: '#9090b0', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px' }}>All Captions:</p>
+                {captionList.map(([pid, cap]) => {
+                  const author = playersArray.find(p => p.id === pid);
+                  return (
+                    <div key={pid} style={{ padding: '10px', background: '#1c1c26', borderRadius: '8px', margin: '5px 0', borderLeft: '3px solid #e879f9' }}>
+                      <strong style={{ color: '#e879f9' }}>{author ? author.name : 'Someone'}:</strong> "{cap}"
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- TWO TRUTHS & A LIE ----
+  if (activity.type === 'two_truths') {
+    if (!targetPlayer) return <div style={{ textAlign: 'center' }}>Loading...</div>;
+    // Firebase stores as object with keys s0, s1, s2 — convert to array safely
+    const rawStatements = targetPlayer.statements || {};
+    const statements = Object.values(rawStatements);
+    const isMe = myPlayerId === targetPlayer.id;
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#ff5c35' }}>🤥 Two Truths & A Lie</h2>
+        <p style={{ color: '#9090b0', marginBottom: '5px' }}>About: <strong style={{ color: '#35d4ff' }}>{targetPlayer.name}</strong></p>
+        {targetPlayer.mediaType === 'image' && <img src={targetPlayer.mediaUrl} alt={targetPlayer.name} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', margin: '10px auto', display: 'block', border: '3px solid #ff5c35' }} />}
+        <p style={{ color: '#ffb347', marginBottom: '20px' }}>Which one is the LIE? Tap to guess!</p>
+        {statements.length === 0 && <p style={{ color: '#ef4444' }}>This player didn't submit statements yet.</p>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {statements.map((s, i) => {
+            const sText = s.text || '';
+            const sIsLie = s.isLie === true;
+            return (
+              <button key={i} onClick={() => {
+                if (hasGuessed || isMe) return;
+                setHasGuessed(true);
+                const correct = sIsLie;
+                if (correct) {
+                  alert("🎯 You found the lie!");
+                  update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(150) });
+                } else {
+                  alert("😅 That was actually true!");
+                }
+                // Log for admin
+                set(ref(db, `rooms/${roomCode}/twoTruthGuesses/${myPlayerId}`), { correct });
+              }} disabled={hasGuessed || isMe} style={{
+                padding: '18px',
+                background: hasGuessed ? (sIsLie ? '#7f1d1d' : '#1c3a2a') : '#252533',
+                color: 'white',
+                border: hasGuessed ? (sIsLie ? '2px solid #ef4444' : '2px solid #22c55e') : '1px solid #5a5a78',
+                borderRadius: '12px',
+                cursor: isMe ? 'default' : 'pointer',
+                fontSize: '16px',
+                textAlign: 'left'
+              }}>
+                <span style={{ marginRight: '8px', fontSize: '18px' }}>
+                  {hasGuessed ? (sIsLie ? '❌' : '✅') : `${i + 1}.`}
+                </span>
+                {hasGuessed && <span style={{ color: sIsLie ? '#ef4444' : '#22c55e', fontWeight: 'bold', fontSize: '12px' }}>{sIsLie ? 'LIE' : 'TRUE'}: </span>}
+                {sText}
+              </button>
+            );
+          })}
+        </div>
+        {isMe && <p style={{ marginTop: '15px', color: '#ffb347' }}>This round is about you! Sit back and watch. 😎</p>}
+        {hasGuessed && <p style={{ marginTop: '15px', color: '#35d4ff' }}>Waiting for admin to advance...</p>}
+      </div>
+    );
+  }
+
+  // ---- STRENGTH SPOTTER (Guess whose strength/weakness) ----
+  if (activity.type === 'strength_spotter') {
+    if (!targetPlayer) return <div style={{ textAlign: 'center' }}>Loading...</div>;
+    const isMe = myPlayerId === targetPlayer.id;
+    const allGuesses = Object.entries(strengthGuesses);
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#14b8a6' }}>💪 Strength Spotter</h2>
+        <p style={{ color: '#9090b0', marginBottom: '20px' }}>Whose strength & weakness is this? Guess the teammate!</p>
+
+        <div style={{ background: '#1c1c26', padding: '25px', borderRadius: '15px', marginBottom: '20px' }}>
+          <p style={{ color: '#9090b0', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '1px' }}>Strength</p>
+          <h2 style={{ color: '#14b8a6', margin: '8px 0 20px', fontSize: '22px' }}>"{targetPlayer.myStrength || 'Not provided'}"</h2>
+          <p style={{ color: '#9090b0', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '1px' }}>What they want to improve</p>
+          <h2 style={{ color: '#f97316', margin: '8px 0 0', fontSize: '22px' }}>"{targetPlayer.myWeakness || 'Not provided'}"</h2>
+        </div>
+
+        {isMe ? (
+          <p style={{ color: '#ffb347' }}>This round is about you! Sit back and watch. 😎</p>
+        ) : !hasGuessed ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            {playersArray.map((p) => (
+              <button key={p.id} onClick={() => {
+                setHasGuessed(true);
+                const correct = p.id === targetPlayer.id;
+                if (correct) {
+                  alert("🎯 Correct! You know your teammate!");
+                  update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(100) });
+                } else {
+                  alert(`😅 Wrong! It was ${targetPlayer.name}.`);
+                }
+                set(ref(db, `rooms/${roomCode}/strengthGuesses/${myPlayerId}`), {
+                  guessedName: p.name,
+                  correct
+                });
+              }} style={{ padding: '15px', background: '#252533', color: 'white', border: '1px solid #5a5a78', borderRadius: '10px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Answer submitted!</p>
+            <p style={{ color: '#9090b0', fontSize: '14px', marginTop: '8px' }}>The answer is: <strong style={{ color: '#14b8a6' }}>{targetPlayer.name}</strong></p>
+            {allGuesses.length > 0 && (
+              <div style={{ marginTop: '12px', textAlign: 'left' }}>
+                {allGuesses.map(([pid, g]) => {
+                  const p = playersArray.find(x => x.id === pid);
+                  return <div key={pid} style={{ padding: '6px 10px', background: '#1a1a2e', borderRadius: '6px', margin: '3px 0', fontSize: '13px' }}>
+                    <strong>{p?.name || pid}:</strong> {g.guessedName} {g.correct ? '✅' : '❌'}
+                  </div>;
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        {hasGuessed && <p style={{ marginTop: '15px', color: '#35d4ff' }}>Waiting for admin to advance...</p>}
+      </div>
+    );
+  }
+
+  // ---- EMOJI DECODE ----
+  if (activity.type === 'emoji_decode') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#facc15' }}>🧩 Emoji Decode</h2>
+        <p style={{ color: '#9090b0' }}>What movie / phrase / thing do these emojis represent?</p>
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', margin: '20px 0', fontSize: '48px', letterSpacing: '8px' }}>
+          {activity.emoji}
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="Your answer..." value={textAnswer} onChange={e => setTextAnswer(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!textAnswer.trim()} onClick={() => {
+              set(ref(db, `rooms/${roomCode}/emojiDecodeAnswers/${myPlayerId}`), textAnswer);
+              setAnswerSent(true);
+              if (textAnswer.toLowerCase().trim() === activity.answer.toLowerCase().trim()) {
+                update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(200) });
+              }
+            }} style={{ padding: '12px 30px', background: !textAnswer.trim() ? '#555' : '#facc15', color: '#000', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Submitted!</p>
+            <p style={{ color: '#9090b0', fontSize: '14px', marginTop: '8px' }}>Answer: <strong style={{ color: '#facc15' }}>{activity.answer}</strong></p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- WORD ASSOCIATION ----
+  if (activity.type === 'word_assoc') {
+    const answerList = Object.entries(liveAnswers);
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#06b6d4' }}>💬 Word Association</h2>
+        <p style={{ color: '#9090b0' }}>What's the FIRST word that comes to mind?</p>
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', margin: '20px 0' }}>
+          <h1 style={{ color: '#06b6d4', fontSize: '36px' }}>{activity.word}</h1>
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="First word..." value={textAnswer} onChange={e => setTextAnswer(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!textAnswer.trim()} onClick={() => {
+              set(ref(db, `rooms/${roomCode}/wordAssocAnswers/${myPlayerId}`), textAnswer);
+              setAnswerSent(true);
+            }} style={{ padding: '12px 30px', background: !textAnswer.trim() ? '#555' : '#06b6d4', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Submitted!</p>
+            {answerList.length > 0 && (
+              <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+                {answerList.map(([pid, a]) => (
+                  <span key={pid} style={{ padding: '8px 16px', background: '#1c1c26', borderRadius: '20px', border: '1px solid #06b6d4', fontSize: '14px' }}>{a}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- WOULD YOU RATHER ----
+  if (activity.type === 'would_you_rather') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#ec4899' }}>🤷 Would You Rather...</h2>
+        {!hasVoted ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '30px' }}>
+            <button onClick={() => { set(ref(db, `rooms/${roomCode}/wouldYouRatherVotes/${myPlayerId}`), 'A'); setHasVoted(true); }}
+              style={{ padding: '30px', background: 'linear-gradient(135deg, #ec4899, #be185d)', color: 'white', border: 'none', borderRadius: '15px', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>
+              {activity.optionA}
+            </button>
+            <span style={{ color: '#555', fontWeight: 'bold', fontSize: '20px' }}>— OR —</span>
+            <button onClick={() => { set(ref(db, `rooms/${roomCode}/wouldYouRatherVotes/${myPlayerId}`), 'B'); setHasVoted(true); }}
+              style={{ padding: '30px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', border: 'none', borderRadius: '15px', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>
+              {activity.optionB}
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Voted!</p>
+            <p style={{ marginTop: '10px', color: '#9090b0' }}>Waiting for others...</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- THIS OR THAT ----
+  if (activity.type === 'this_or_that') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#8b5cf6' }}>⚖️ This or That</h2>
+        <p style={{ color: '#9090b0' }}>Quick! Pick one!</p>
+        {!hasVoted ? (
+          <div style={{ display: 'flex', gap: '15px', marginTop: '30px', justifyContent: 'center' }}>
+            <button onClick={() => { set(ref(db, `rooms/${roomCode}/thisOrThatVotes/${myPlayerId}`), 'A'); setHasVoted(true); }}
+              style={{ padding: '30px 40px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '15px', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold', flex: 1 }}>
+              {activity.optionA}
+            </button>
+            <button onClick={() => { set(ref(db, `rooms/${roomCode}/thisOrThatVotes/${myPlayerId}`), 'B'); setHasVoted(true); }}
+              style={{ padding: '30px 40px', background: '#a855f7', color: 'white', border: 'none', borderRadius: '15px', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold', flex: 1 }}>
+              {activity.optionB}
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Picked!</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- TEAM TRIVIA ----
+  if (activity.type === 'team_trivia') {
+    const options = activity.options ? Object.values(activity.options) : [];
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#f43f5e' }}>🧠 Team Trivia</h2>
+        <div style={{ background: '#1c1c26', padding: '25px', borderRadius: '15px', margin: '20px 0', borderLeft: '5px solid #f43f5e' }}>
+          <p style={{ fontSize: '20px', lineHeight: '1.5' }}>{activity.question}</p>
+        </div>
+        {!hasGuessed ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {options.map((opt, i) => (
+              <button key={i} onClick={() => {
+                setHasGuessed(true);
+                const correct = i === activity.correctIndex;
+                set(ref(db, `rooms/${roomCode}/triviaAnswers/${myPlayerId}`), { answer: opt, correct });
+                if (correct) {
+                  alert("🎯 Correct!");
+                  update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(150) });
+                } else {
+                  alert(`❌ Wrong! The answer was: ${options[activity.correctIndex]}`);
+                }
+              }} style={{ padding: '16px', background: '#252533', color: 'white', border: '1px solid #5a5a78', borderRadius: '10px', cursor: 'pointer', fontSize: '16px', textAlign: 'left' }}>
+                <span style={{ color: '#f43f5e', fontWeight: 'bold', marginRight: '10px' }}>{String.fromCharCode(65 + i)}.</span> {opt}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Answer submitted!</p>
+            <p style={{ color: '#9090b0', marginTop: '8px' }}>Correct: <strong style={{ color: '#f43f5e' }}>{options[activity.correctIndex]}</strong></p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- SPEED EMOJI REACT ----
+  if (activity.type === 'speed_emoji') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#eab308' }}>⚡ Speed Emoji React!</h2>
+        <p style={{ color: '#9090b0' }}>Find and tap: <span style={{ fontSize: '36px' }}>{activity.targetEmoji}</span></p>
+        {!hasGuessed ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', margin: '20px 0' }}>
+            {emojiGrid.map((emoji, i) => (
+              <button key={i} onClick={() => {
+                if (emoji === activity.targetEmoji) {
+                  const ms = Date.now() - emojiStartTime;
+                  setHasGuessed(true);
+                  set(ref(db, `rooms/${roomCode}/speedEmojiTaps/${myPlayerId}`), ms);
+                  update(ref(db, `rooms/${roomCode}/players/${myPlayerId}`), { score: increment(Math.max(10, 200 - ms)) });
+                  alert(`⚡ Found it in ${ms}ms!`);
+                }
+              }} style={{ padding: '10px', fontSize: '24px', background: '#252533', border: '1px solid #333', borderRadius: '8px', cursor: 'pointer' }}>
+                {emoji}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Found it!</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- EMOJI STORY CHAIN ----
+  if (activity.type === 'emoji_story') {
+    const storyEntries = Object.entries(liveStory);
+    const playersArr = Object.entries(roomData.players || {}).map(([id, d]) => ({ id, ...d }));
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#22d3ee' }}>📖 Emoji Story Chain</h2>
+        <p style={{ color: '#9090b0' }}>Add 1-3 emojis to continue the story! Build it together.</p>
+        <div style={{ background: '#1c1c26', padding: '20px', borderRadius: '15px', margin: '20px 0', minHeight: '60px', fontSize: '28px', letterSpacing: '4px', wordBreak: 'break-all' }}>
+          {storyEntries.length === 0 ? <span style={{ color: '#555' }}>Story starts here...</span> : storyEntries.map(([pid, e]) => {
+            const author = playersArr.find(p => p.id === pid);
+            return <span key={pid} title={author?.name}>{e}</span>;
+          })}
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="Add 1-3 emojis..." value={storyEmoji} onChange={e => setStoryEmoji(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px', fontSize: '24px', textAlign: 'center' }} maxLength={6} />
+            <button disabled={!storyEmoji.trim()} onClick={() => {
+              set(ref(db, `rooms/${roomCode}/emojiStoryEntries/${myPlayerId}`), storyEmoji);
+              setAnswerSent(true);
+            }} style={{ padding: '12px 30px', background: !storyEmoji.trim() ? '#555' : '#22d3ee', color: '#000', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Add to Story
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '15px', borderRadius: '12px', marginTop: '15px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Added!</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- QUICK DRAW (WORDS) ----
+  if (activity.type === 'quick_draw') {
+    const answerList = Object.entries(liveAnswers);
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#f472b6' }}>🎨 Quick Draw (Words Edition)</h2>
+        <p style={{ color: '#9090b0' }}>Describe this using ONLY emojis or a single short sentence:</p>
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', margin: '20px 0', borderLeft: '5px solid #f472b6' }}>
+          <h2 style={{ color: '#f472b6', fontSize: '24px' }}>"{activity.subject}"</h2>
+        </div>
+        {!answerSent ? (
+          <div>
+            <input placeholder="Your creative depiction..." value={textAnswer} onChange={e => setTextAnswer(e.target.value)} style={{ padding: '12px', width: '85%', borderRadius: '8px', border: 'none', marginTop: '10px' }} />
+            <button disabled={!textAnswer.trim()} onClick={() => {
+              set(ref(db, `rooms/${roomCode}/quickDrawAnswers/${myPlayerId}`), textAnswer);
+              setAnswerSent(true);
+            }} style={{ padding: '12px 30px', background: !textAnswer.trim() ? '#555' : '#f472b6', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '12px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Submitted!</p>
+            {answerList.length > 0 && (
+              <div style={{ marginTop: '15px', textAlign: 'left' }}>
+                {answerList.map(([pid, a]) => {
+                  const author = playersArray.find(p => p.id === pid);
+                  return <div key={pid} style={{ padding: '10px', background: '#1c1c26', borderRadius: '8px', margin: '5px 0', borderLeft: '3px solid #f472b6' }}>
+                    <strong style={{ color: '#f472b6' }}>{author?.name || 'Someone'}:</strong> "{a}"
+                  </div>;
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- RPS BATTLE ----
+  if (activity.type === 'rps_battle') {
+    return (
+      <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ color: '#a3e635' }}>🪨 Rock Paper Scissors</h2>
+        <p style={{ color: '#9090b0' }}>Pick your weapon!</p>
+        {!hasGuessed ? (
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '30px' }}>
+            {RPS_OPTIONS.map(opt => (
+              <button key={opt.name} onClick={() => {
+                setHasGuessed(true);
+                set(ref(db, `rooms/${roomCode}/rpsBattleChoices/${myPlayerId}`), opt.emoji);
+              }} style={{ padding: '20px', background: '#252533', border: '2px solid #5a5a78', borderRadius: '15px', cursor: 'pointer', fontSize: '48px', transition: 'transform 0.2s' }}>
+                {opt.emoji}
+                <p style={{ fontSize: '14px', color: '#9090b0', marginTop: '8px' }}>{opt.name}</p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ background: '#252533', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
+            <p style={{ color: '#22c55e', fontWeight: 'bold' }}>✅ Choice locked in!</p>
+            <p style={{ color: '#9090b0', marginTop: '8px' }}>Waiting for everyone...</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ---- MEDIA GUESS & WHO SAID IT (need targetPlayer) ----
+  if (!targetPlayer) return <div style={{ textAlign: 'center' }}>Loading...</div>;
+
+  return (
+    <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+      
+      {activity.type === 'media_guess' && (
+        <div style={{ background: '#1c1c26', padding: '20px', borderRadius: '15px', marginBottom: '20px' }}>
+          <h2 style={{ color: '#a855f7', marginBottom: '15px' }}>📸 Whose file is this?</h2>
+          {targetPlayer.mediaType === 'image' && <img src={targetPlayer.mediaUrl} alt="Mystery" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
+          {targetPlayer.mediaType === 'video' && <video src={targetPlayer.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+          {targetPlayer.mediaType === 'audio' && <audio src={targetPlayer.mediaUrl} controls style={{ width: '100%' }} />}
+        </div>
+      )}
+
+      {activity.type === 'who_said_it' && (
+        <div style={{ background: '#1c1c26', padding: '30px', borderRadius: '15px', marginBottom: '20px', borderLeft: '5px solid #ffb347' }}>
+          <h2 style={{ color: '#ffb347', marginBottom: '15px' }}>🗣️ Who Said It?</h2>
+          <p style={{ color: '#9090b0', textTransform: 'uppercase', fontSize: '12px' }}>Question:</p>
+          <p style={{ fontSize: '18px', marginBottom: '20px' }}>{targetPlayer.secretQuestion}</p>
+          <p style={{ color: '#9090b0', textTransform: 'uppercase', fontSize: '12px' }}>Answer:</p>
+          <h1 style={{ fontSize: '28px', color: '#ff5c35' }}>"{targetPlayer.secretAnswer}"</h1>
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        {playersArray.map((p) => (
+          <button key={p.id} onClick={() => handleGuess(p.id)} disabled={hasGuessed} style={{ padding: '15px', background: hasGuessed ? '#333' : '#252533', color: 'white', border: '1px solid #5a5a78', borderRadius: '10px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
+            {p.name}
+          </button>
+        ))}
+      </div>
+      {hasGuessed && <p style={{ marginTop: '20px', color: '#35d4ff' }}>Waiting for admin to advance...</p>}
+    </div>
+  );
+}
+
+// --- 5. PLAYER MASTER VIEW ---
+function PlayerView() {
+  const { code } = useParams();
+  const [playerId, setPlayerId] = useState(null);
+  const [roomData, setRoomData] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onValue(ref(db, `rooms/${code}`), (snapshot) => {
+      setRoomData(snapshot.val());
+    });
+    return () => unsubscribe();
+  }, [code]);
+
+  if (!roomData) return <div style={{ color: 'white', padding: '50px', textAlign: 'center' }}>Connecting to room...</div>;
+
+  return (
+    <div style={{ color: 'white', background: '#0a0a0f', minHeight: '100vh', fontFamily: 'DM Sans, sans-serif', padding: '20px' }}>
+      {!playerId && <PlayerSetup code={code} onReady={(id) => setPlayerId(id)} />}
+      
+      {playerId && roomData.gameState === 'lobby' && (
+        <div style={{ padding: '50px', textAlign: 'center' }}>
+          <h2 style={{ color: '#22c55e' }}>You're in the Locker Room!</h2>
+          <p style={{ color: '#9090b0' }}>Waiting for the Host to start a game...</p>
+        </div>
+      )}
+
+      {playerId && roomData.gameState === 'playing' && (
+        <GameBoard roomCode={code} roomData={roomData} myPlayerId={playerId} />
+      )}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/room/:code/admin" element={<AdminPanel />} />
+        <Route path="/room/:code/player" element={<PlayerView />} />
+      </Routes>
+    </Router>
+  );
+}

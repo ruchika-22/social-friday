@@ -1,0 +1,12 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0a0a0f;
+  color: #f0f0ff;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+h1, h2, h3 { font-family: 'Syne', sans-serif; }
+input:focus { outline: 2px solid #35d4ff; }
+button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+button:active { transform: translateY(1px); }
