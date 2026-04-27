@@ -2,7 +2,7 @@
   "name": "nexus-friday-app",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://ruchika-22.github.io/nexus-friday-app",
+  "homepage": "https://ruchika-22.github.io/social-friday",
   "dependencies": {
     "firebase": "^10.5.0",
     "react": "^18.2.0",
