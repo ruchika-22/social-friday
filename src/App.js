@@ -7,7 +7,7 @@ import * as Creative from './games/CreativeGames';
 import * as Brain from './games/BrainGames';
 import * as QuickFire from './games/QuickFireGames';
 import * as Party from './games/PartyGames';
-import { SECRET_QUESTIONS, STRENGTH_OPTIONS, WEAKNESS_OPTIONS } from './games/gameData';
+import { SECRET_QUESTIONS, STRENGTH_OPTIONS, WEAKNESS_OPTIONS, getPlayableMediaUrl } from './games/gameData';
 import { generateDynamicQuestion, generateLeaderboardCommentary } from './gemini';
 import './App.css';
 
@@ -341,8 +341,9 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       if (!data.secure_url) throw new Error('No URL returned');
-      setMediaUrl(data.secure_url);
-      setMediaType(file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'audio' : 'image');
+      const uploadedMediaType = file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'audio' : 'image';
+      setMediaUrl(getPlayableMediaUrl(data.secure_url, uploadedMediaType));
+      setMediaType(uploadedMediaType);
     } catch (e) { 
       console.error('Upload failed:', e);
       alert('Upload failed. Please try again.');
@@ -415,7 +416,7 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
             <div style={{ marginTop: '15px', padding: '12px', background: '#1c1c26', borderRadius: '10px', borderLeft: '4px solid #22c55e' }}>
               <p style={{ color: '#22c55e', margin: '0 0 10px', fontSize: '12px' }}>✅ Uploaded!</p>
               {mediaType === 'image' && <img src={mediaUrl} alt="Preview" style={{ width: '100%', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />}
-              {mediaType === 'video' && <video src={mediaUrl} controls style={{ width: '100%', maxHeight: '150px', borderRadius: '8px' }} />}
+              {mediaType === 'video' && <video src={getPlayableMediaUrl(mediaUrl, mediaType)} controls playsInline preload="metadata" style={{ width: '100%', maxHeight: '150px', borderRadius: '8px' }} />}
               {mediaType === 'audio' && <audio src={mediaUrl} controls style={{ width: '100%', marginTop: '8px' }} />}
             </div>
           )}

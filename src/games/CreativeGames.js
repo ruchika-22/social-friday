@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, update, onValue, increment } from 'firebase/database';
 import { db } from '../firebase';
-import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, isMediaKind } from './gameData';
+import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, isMediaKind, getPlayableMediaUrl } from './gameData';
 
 const EMOJI_KEYBOARD = [
   ['😀','😂','🥹','😍','🤩','😎','🥳','😤','😱','🤯','😈','💀','👻','🤖','👽'],
@@ -117,7 +117,7 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
       {target && target.mediaUrl ? (
         <div style={card}>
           {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Caption" style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', borderRadius: '10px' }} />}
-          {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+          {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={getPlayableMediaUrl(target.mediaUrl, target.mediaType)} controls playsInline preload="metadata" style={{ width: '100%', borderRadius: '10px' }} />}
           {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
           {!isMediaKind(target.mediaType, target.mediaUrl, 'image') && !isMediaKind(target.mediaType, target.mediaUrl, 'video') && !isMediaKind(target.mediaType, target.mediaUrl, 'audio') && (
             <a href={target.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff' }}>Open uploaded media</a>

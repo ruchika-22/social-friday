@@ -175,6 +175,13 @@ export function isMediaKind(mediaType, url, kind) {
   return getMediaKind(mediaType, url) === kind;
 }
 
+export function getPlayableMediaUrl(url, mediaType) {
+  if (!url || !isMediaKind(mediaType, url, 'video')) return url;
+  if (!url.includes('res.cloudinary.com') || !url.includes('/video/upload/')) return url;
+  if (url.includes('/video/upload/f_mp4')) return url;
+  return url.replace('/video/upload/', '/video/upload/f_mp4,q_auto/');
+}
+
 export function getMediaKind(mediaType, url) {
   if (typeof mediaType === 'string') {
     const lower = mediaType.toLowerCase();
