@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, update, onValue, increment } from 'firebase/database';
 import { db } from '../firebase';
-import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, pickRandom, isMediaKind } from './gameData';
+import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, isMediaKind } from './gameData';
 
 const EMOJI_KEYBOARD = [
   ['😀','😂','🥹','😍','🤩','😎','🥳','😤','😱','🤯','😈','💀','👻','🤖','👽'],
@@ -36,20 +36,20 @@ const SUB_TYPES = ['caption_this', 'sell_this', 'quick_draw'];
 
 export function buildRounds(players, count) {
   const pids = Object.keys(players);
-  const imgPids = pids.filter(pid => players[pid].mediaUrl);
+  const mediaPids = pids.filter(pid => players[pid].mediaUrl);
   const captions = shuffle([...CAPTION_PROMPTS]);
   const sells = shuffle([...SELL_THIS_ITEMS]);
   const draws = shuffle([...QUICK_DRAW_SUBJECTS]);
 
-  // Only include caption_this if players have images
-  const availableTypes = imgPids.length > 0 ? SUB_TYPES : ['sell_this', 'quick_draw'];
+  // Only include caption_this if players uploaded media.
+  const availableTypes = mediaPids.length > 0 ? SUB_TYPES : ['sell_this', 'quick_draw'];
 
   const rounds = [];
-  let ci = 0, si = 0, di = 0, imgIdx = 0;
+  let ci = 0, si = 0, di = 0, mediaIdx = 0;
   for (let i = 0; i < count; i++) {
     const subType = availableTypes[i % availableTypes.length];
     if (subType === 'caption_this') {
-      const targetId = imgPids[imgIdx++ % imgPids.length];
+      const targetId = mediaPids[mediaIdx++ % mediaPids.length];
       rounds.push({ type: 'caption_this', targetId, prompt: captions[ci++ % captions.length], round: Date.now() + i });
     } else if (subType === 'sell_this') {
       rounds.push({ type: 'sell_this', item: sells[si++ % sells.length], round: Date.now() + i });
@@ -118,6 +118,10 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
         <div style={card}>
           {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Caption" style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', borderRadius: '10px' }} />}
           {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+          {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
+          {!isMediaKind(target.mediaType, target.mediaUrl, 'image') && !isMediaKind(target.mediaType, target.mediaUrl, 'video') && !isMediaKind(target.mediaType, target.mediaUrl, 'audio') && (
+            <a href={target.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff' }}>Open uploaded media</a>
+          )}
         </div>
       ) : (
         <div style={{ ...card, borderLeft: '5px solid #f43f5e', textAlign: 'center' }}>

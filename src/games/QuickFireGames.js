@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, update, onValue, increment } from 'firebase/database';
 import { db } from '../firebase';
-import { WOULD_YOU_RATHER_PROMPTS, THIS_OR_THAT_PROMPTS, WORD_ASSOCIATION_PROMPTS, shuffle } from './gameData';
+import { WOULD_YOU_RATHER_PROMPTS, THIS_OR_THAT_PROMPTS, WORD_ASSOCIATION_PROMPTS, shuffle, isMediaKind } from './gameData';
 
 export const CONFIG = {
   id: 'quickfire', label: '⚡ Quick Fire', color: '#eab308',
@@ -37,7 +37,7 @@ export function buildRounds(players, count) {
 
 function PlayerAvatar({ player, size }) {
   const s = size || 36;
-  if (player?.mediaUrl && player.mediaType === 'image') {
+  if (player?.mediaUrl && isMediaKind(player.mediaType, player.mediaUrl, 'image')) {
     return <img src={player.mediaUrl} alt={player.name} style={{ width: s, height: s, borderRadius: '50%', objectFit: 'cover', border: '2px solid #5a5a78', flexShrink: 0 }} />;
   }
   return <div style={{ width: s, height: s, borderRadius: '50%', background: '#3b3b5c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: s * 0.45, color: '#aaa', flexShrink: 0, border: '2px solid #5a5a78' }}>{(player?.name || '?')[0].toUpperCase()}</div>;

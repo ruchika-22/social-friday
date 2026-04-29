@@ -14,20 +14,34 @@ export const CLEAR_KEYS = {
 
 export function buildRounds(players, count) {
   const pids = Object.keys(players);
-  const allRounds = [];
+  const roundBuckets = {
+    media_guess: [],
+    who_said_it: [],
+    two_truths: [],
+    strength_spotter: []
+  };
 
   // For each player, only create rounds for data they actually provided
   pids.forEach(pid => {
     const p = players[pid];
-    if (p.mediaUrl) allRounds.push({ type: 'media_guess', targetId: pid });
-    if (p.secretQuestion && p.secretAnswer) allRounds.push({ type: 'who_said_it', targetId: pid });
-    if (p.statements) allRounds.push({ type: 'two_truths', targetId: pid });
-    if (p.myStrength) allRounds.push({ type: 'strength_spotter', targetId: pid });
+    if (p.mediaUrl) roundBuckets.media_guess.push({ type: 'media_guess', targetId: pid });
+    if (p.secretQuestion && p.secretAnswer) roundBuckets.who_said_it.push({ type: 'who_said_it', targetId: pid });
+    if (p.statements) roundBuckets.two_truths.push({ type: 'two_truths', targetId: pid });
+    if (p.myStrength) roundBuckets.strength_spotter.push({ type: 'strength_spotter', targetId: pid });
   });
 
-  // Shuffle for variety, take up to count
-  const shuffled = shuffle(allRounds);
-  return shuffled.slice(0, count).map((r, i) => ({ ...r, round: Date.now() + i }));
+  const buckets = Object.values(roundBuckets).map(bucket => shuffle(bucket)).filter(bucket => bucket.length > 0);
+  const rounds = [];
+  let bucketIndex = 0;
+
+  while (rounds.length < count && buckets.length > 0) {
+    const bucket = buckets[bucketIndex % buckets.length];
+    if (bucket.length > 0) rounds.push(bucket.shift());
+    if (bucket.length === 0) buckets.splice(bucketIndex % buckets.length, 1);
+    else bucketIndex++;
+  }
+
+  return rounds.map((r, i) => ({ ...r, round: Date.now() + i }));
 }
 
 // ===== PLAYER GAME RENDERER =====
@@ -84,6 +98,9 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
         {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Mystery" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
         {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
         {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
+        {!isMediaKind(target.mediaType, target.mediaUrl, 'image') && !isMediaKind(target.mediaType, target.mediaUrl, 'video') && !isMediaKind(target.mediaType, target.mediaUrl, 'audio') && (
+          <a href={target.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff' }}>Open uploaded media</a>
+        )}
       </div>
       {isMe ? <p style={{ color: '#ffb347' }}>This is your file! Sit back and watch. 😎</p> : !hasGuessed ? (
         <div style={grid}>{players.map(p => <button key={p.id} onClick={() => guessPlayer(p.id)} style={gBtn}>{p.name}</button>)}</div>
@@ -188,6 +205,16 @@ export function AdminMonitor({ activity, roomData, playersArray, targetPlayer })
         <div style={{ background: '#1a1a2e', padding: '8px 12px', borderRadius: '8px', margin: '5px 0', borderLeft: '3px solid #ffb347' }}>
           <span style={{ color: '#9090b0', fontSize: '12px' }}>Q: {targetPlayer.secretQuestion}</span><br/>
           <span style={{ color: '#ffb347', fontWeight: 'bold' }}>A: "{targetPlayer.secretAnswer}"</span>
+        </div>
+      )}
+      {activity.type === 'media_guess' && targetPlayer?.mediaUrl && (
+        <div style={{ background: '#1a1a2e', padding: '8px 12px', borderRadius: '8px', margin: '5px 0', borderLeft: '3px solid #a855f7' }}>
+          {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'image') && <img src={targetPlayer.mediaUrl} alt="Target media" style={{ width: '100%', maxHeight: '140px', objectFit: 'contain', borderRadius: '8px' }} />}
+          {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'video') && <video src={targetPlayer.mediaUrl} controls style={{ width: '100%', maxHeight: '140px', borderRadius: '8px' }} />}
+          {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'audio') && <audio src={targetPlayer.mediaUrl} controls style={{ width: '100%' }} />}
+          {!isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'image') && !isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'video') && !isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'audio') && (
+            <a href={targetPlayer.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff', fontSize: '12px' }}>Open uploaded media</a>
+          )}
         </div>
       )}
       {activity.type === 'two_truths' && targetPlayer?.statements && Object.values(targetPlayer.statements).map((s, i) => (

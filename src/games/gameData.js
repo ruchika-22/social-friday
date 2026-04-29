@@ -172,17 +172,23 @@ const MEDIA_EXTENSIONS = {
 };
 
 export function isMediaKind(mediaType, url, kind) {
+  return getMediaKind(mediaType, url) === kind;
+}
+
+export function getMediaKind(mediaType, url) {
   if (typeof mediaType === 'string') {
     const lower = mediaType.toLowerCase();
-    if (kind === 'image') return lower === 'image' || lower.startsWith('image/');
-    if (kind === 'video') return lower === 'video' || lower.startsWith('video/');
-    if (kind === 'audio') return lower === 'audio' || lower.startsWith('audio/');
+    if (lower === 'image' || lower.startsWith('image/')) return 'image';
+    if (lower === 'video' || lower.startsWith('video/')) return 'video';
+    if (lower === 'audio' || lower.startsWith('audio/')) return 'audio';
   }
   if (typeof url === 'string') {
     const extension = url.split('?')[0].split('.').pop().toLowerCase();
-    return MEDIA_EXTENSIONS[kind]?.includes(extension) || false;
+    if (MEDIA_EXTENSIONS.image.includes(extension)) return 'image';
+    if (MEDIA_EXTENSIONS.video.includes(extension)) return 'video';
+    if (MEDIA_EXTENSIONS.audio.includes(extension)) return 'audio';
   }
-  return false;
+  return null;
 }
 
 // Pick N unique random items from an array
