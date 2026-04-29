@@ -338,10 +338,15 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
     const rType = file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'raw' : 'image';
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${rType}/upload`, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
+      if (!data.secure_url) throw new Error('No URL returned');
       setMediaUrl(data.secure_url);
       setMediaType(file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'audio' : 'image');
-    } catch (e) { console.error('Upload failed:', e); }
+    } catch (e) { 
+      console.error('Upload failed:', e);
+      alert('Upload failed. Please try again.');
+    }
     setUploading(false);
   };
 
@@ -363,7 +368,7 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
 
   const canNext = () => {
     if (step === 0) return name.trim().length > 0;
-    if (step === 1 && needsMedia) return true;
+    if (step === 1 && needsMedia) return !!mediaUrl;
     if (needsFull) {
       if (step === 2) return secretA.trim().length > 0;
       if (step === 3) return statements.every(s => s.text.trim());
@@ -380,7 +385,7 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
   return (
     <div style={setupWrap}>
       <h2 style={{ color: '#ff5c35', textAlign: 'center', margin: '0 0 5px' }}>🎮 Locker Room</h2>
-      <p style={{ color: '#555', textAlign: 'center', marginBottom: '20px', fontSize: '13px' }}>Step {step + 1} of {totalSteps}</p>
+      <p style={{ color: '#555', textAlign: 'center', marginBottom: '20px', fontSize: '13px' }}>Step {step + 1} of {totalSteps} • All fields required</p>
 
       {/* Step 0: Name */}
       {step === 0 && (
@@ -394,19 +399,26 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
       {/* Step 1: Media */}
       {step === 1 && needsMedia && (
         <div>
-          <label style={labelSt}>Upload a Profile Photo</label>
+          <label style={labelSt}>Upload a Profile Photo, Video, or Audio</label>
           <p style={{ color: '#777', fontSize: '12px' }}>
             {needsFull
               ? 'Photo, video, or audio for teammates to guess about!'
               : category === 'creative'
                 ? '📸 Upload a photo — it will be used in Caption This rounds!'
-                : 'Add a photo so teammates can see your avatar during the game!'}
+                : 'Add a photo, video, or audio file so teammates can see your content during the game!'}
           </p>
           <input type="file" accept="image/*,video/*,audio/*"
             onChange={e => { if (e.target.files[0]) uploadFile(e.target.files[0]); }}
             style={{ color: 'white', marginTop: '10px' }} />
-          {uploading && <p style={{ color: '#ffb347' }}>Uploading...</p>}
-          {mediaUrl && <p style={{ color: '#22c55e' }}>✅ Uploaded!</p>}
+          {uploading && <p style={{ color: '#ffb347', marginTop: '10px' }}>⏳ Uploading...</p>}
+          {mediaUrl && mediaType && (
+            <div style={{ marginTop: '15px', padding: '12px', background: '#1c1c26', borderRadius: '10px', borderLeft: '4px solid #22c55e' }}>
+              <p style={{ color: '#22c55e', margin: '0 0 10px', fontSize: '12px' }}>✅ Uploaded!</p>
+              {mediaType === 'image' && <img src={mediaUrl} alt="Preview" style={{ width: '100%', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />}
+              {mediaType === 'video' && <video src={mediaUrl} controls style={{ width: '100%', maxHeight: '150px', borderRadius: '8px' }} />}
+              {mediaType === 'audio' && <audio src={mediaUrl} controls style={{ width: '100%', marginTop: '8px' }} />}
+            </div>
+          )}
         </div>
       )}
 
