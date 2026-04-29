@@ -335,7 +335,7 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('upload_preset', UPLOAD_PRESET);
-    const rType = file.type.startsWith('video') ? 'video' : file.type.startsWith('audio') ? 'raw' : 'image';
+    const rType = file.type.startsWith('video') || file.type.startsWith('audio') ? 'video' : 'image';
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${rType}/upload`, { method: 'POST', body: fd });
       if (!res.ok) throw new Error('Upload failed');
@@ -417,7 +417,7 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
               <p style={{ color: '#22c55e', margin: '0 0 10px', fontSize: '12px' }}>✅ Uploaded!</p>
               {mediaType === 'image' && <img src={mediaUrl} alt="Preview" style={{ width: '100%', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />}
               {mediaType === 'video' && <video src={getPlayableMediaUrl(mediaUrl, mediaType)} controls playsInline preload="metadata" style={{ width: '100%', maxHeight: '150px', borderRadius: '8px' }} />}
-              {mediaType === 'audio' && <audio src={mediaUrl} controls style={{ width: '100%', marginTop: '8px' }} />}
+              {mediaType === 'audio' && <audio src={getPlayableMediaUrl(mediaUrl, mediaType)} controls preload="metadata" style={{ width: '100%', marginTop: '8px' }} />}
             </div>
           )}
         </div>

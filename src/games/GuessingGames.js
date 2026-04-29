@@ -97,7 +97,7 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
       <div style={card}>
         {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Mystery" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
         {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={getPlayableMediaUrl(target.mediaUrl, target.mediaType)} controls playsInline preload="metadata" style={{ width: '100%', borderRadius: '10px' }} />}
-        {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
+        {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={getPlayableMediaUrl(target.mediaUrl, target.mediaType)} controls preload="metadata" style={{ width: '100%' }} />}
         {!isMediaKind(target.mediaType, target.mediaUrl, 'image') && !isMediaKind(target.mediaType, target.mediaUrl, 'video') && !isMediaKind(target.mediaType, target.mediaUrl, 'audio') && (
           <a href={target.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff' }}>Open uploaded media</a>
         )}
@@ -211,7 +211,7 @@ export function AdminMonitor({ activity, roomData, playersArray, targetPlayer })
         <div style={{ background: '#1a1a2e', padding: '8px 12px', borderRadius: '8px', margin: '5px 0', borderLeft: '3px solid #a855f7' }}>
           {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'image') && <img src={targetPlayer.mediaUrl} alt="Target media" style={{ width: '100%', maxHeight: '140px', objectFit: 'contain', borderRadius: '8px' }} />}
           {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'video') && <video src={getPlayableMediaUrl(targetPlayer.mediaUrl, targetPlayer.mediaType)} controls playsInline preload="metadata" style={{ width: '100%', maxHeight: '140px', borderRadius: '8px' }} />}
-          {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'audio') && <audio src={targetPlayer.mediaUrl} controls style={{ width: '100%' }} />}
+          {isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'audio') && <audio src={getPlayableMediaUrl(targetPlayer.mediaUrl, targetPlayer.mediaType)} controls preload="metadata" style={{ width: '100%' }} />}
           {!isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'image') && !isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'video') && !isMediaKind(targetPlayer.mediaType, targetPlayer.mediaUrl, 'audio') && (
             <a href={targetPlayer.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff', fontSize: '12px' }}>Open uploaded media</a>
           )}

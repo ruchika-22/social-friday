@@ -176,10 +176,12 @@ export function isMediaKind(mediaType, url, kind) {
 }
 
 export function getPlayableMediaUrl(url, mediaType) {
-  if (!url || !isMediaKind(mediaType, url, 'video')) return url;
+  if (!url) return url;
+  const kind = getMediaKind(mediaType, url);
   if (!url.includes('res.cloudinary.com') || !url.includes('/video/upload/')) return url;
-  if (url.includes('/video/upload/f_mp4')) return url;
-  return url.replace('/video/upload/', '/video/upload/f_mp4,q_auto/');
+  if (kind === 'video') return withCloudinaryVideoTransform(url, 'f_mp4,vc_h264,ac_aac,q_auto');
+  if (kind === 'audio') return withCloudinaryVideoTransform(url, 'f_mp3,q_auto');
+  return url;
 }
 
 export function getMediaKind(mediaType, url) {
@@ -196,6 +198,25 @@ export function getMediaKind(mediaType, url) {
     if (MEDIA_EXTENSIONS.audio.includes(extension)) return 'audio';
   }
   return null;
+}
+
+function withCloudinaryVideoTransform(url, transform) {
+  const uploadPrefix = '/video/upload/';
+  const uploadIndex = url.indexOf(uploadPrefix);
+  if (uploadIndex === -1) return url;
+
+  const afterUploadIndex = uploadIndex + uploadPrefix.length;
+  const beforeUpload = url.slice(0, afterUploadIndex);
+  const afterUpload = url.slice(afterUploadIndex);
+
+  if (afterUpload.startsWith(`${transform}/`)) return url;
+  const versionMatch = afterUpload.match(/^v\d+\//);
+  if (versionMatch) return `${beforeUpload}${transform}/${afterUpload}`;
+
+  const existingTransformMatch = afterUpload.match(/^[^/]+\/(v\d+\/.*)$/);
+  if (existingTransformMatch) return `${beforeUpload}${transform}/${existingTransformMatch[1]}`;
+
+  return `${beforeUpload}${transform}/${afterUpload}`;
 }
 
 // Pick N unique random items from an array

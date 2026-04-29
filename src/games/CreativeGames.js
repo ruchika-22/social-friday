@@ -118,7 +118,7 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
         <div style={card}>
           {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Caption" style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', borderRadius: '10px' }} />}
           {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={getPlayableMediaUrl(target.mediaUrl, target.mediaType)} controls playsInline preload="metadata" style={{ width: '100%', borderRadius: '10px' }} />}
-          {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
+          {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={getPlayableMediaUrl(target.mediaUrl, target.mediaType)} controls preload="metadata" style={{ width: '100%' }} />}
           {!isMediaKind(target.mediaType, target.mediaUrl, 'image') && !isMediaKind(target.mediaType, target.mediaUrl, 'video') && !isMediaKind(target.mediaType, target.mediaUrl, 'audio') && (
             <a href={target.mediaUrl} target="_blank" rel="noreferrer" style={{ color: '#35d4ff' }}>Open uploaded media</a>
           )}
