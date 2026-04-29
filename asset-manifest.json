@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/social-friday/static/css/main.87361f8a.css",
-    "main.js": "/social-friday/static/js/main.5ebc3140.js",
+    "main.js": "/social-friday/static/js/main.ce930330.js",
     "index.html": "/social-friday/index.html",
     "main.87361f8a.css.map": "/social-friday/static/css/main.87361f8a.css.map",
-    "main.5ebc3140.js.map": "/social-friday/static/js/main.5ebc3140.js.map"
+    "main.ce930330.js.map": "/social-friday/static/js/main.ce930330.js.map"
   },
   "entrypoints": [
     "static/css/main.87361f8a.css",
-    "static/js/main.5ebc3140.js"
+    "static/js/main.ce930330.js"
   ]
 }
