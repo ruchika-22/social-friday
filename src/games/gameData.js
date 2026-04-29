@@ -165,6 +165,26 @@ export function shuffle(arr) {
   return a;
 }
 
+const MEDIA_EXTENSIONS = {
+  image: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'tiff', 'avif'],
+  video: ['mp4', 'webm', 'ogg', 'mov', 'm4v'],
+  audio: ['mp3', 'wav', 'ogg', 'm4a', 'aac']
+};
+
+export function isMediaKind(mediaType, url, kind) {
+  if (typeof mediaType === 'string') {
+    const lower = mediaType.toLowerCase();
+    if (kind === 'image') return lower === 'image' || lower.startsWith('image/');
+    if (kind === 'video') return lower === 'video' || lower.startsWith('video/');
+    if (kind === 'audio') return lower === 'audio' || lower.startsWith('audio/');
+  }
+  if (typeof url === 'string') {
+    const extension = url.split('?')[0].split('.').pop().toLowerCase();
+    return MEDIA_EXTENSIONS[kind]?.includes(extension) || false;
+  }
+  return false;
+}
+
 // Pick N unique random items from an array
 export function pickRandom(arr, n) {
   return shuffle(arr).slice(0, n);

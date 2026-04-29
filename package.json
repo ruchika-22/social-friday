@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://ruchika-22.github.io/social-friday",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "firebase": "^10.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

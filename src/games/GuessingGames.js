@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, update, onValue, increment } from 'firebase/database';
 import { db } from '../firebase';
-import { shuffle } from './gameData';
+import { shuffle, isMediaKind } from './gameData';
 
 export const CONFIG = {
   id: 'guess_who', label: '🎯 Guess Who', color: '#a855f7',
@@ -81,9 +81,9 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
     <div style={wrap}>
       <h2 style={{ color: '#a855f7' }}>📸 Whose file is this?</h2>
       <div style={card}>
-        {target.mediaType === 'image' && <img src={target.mediaUrl} alt="Mystery" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
-        {target.mediaType === 'video' && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
-        {target.mediaType === 'audio' && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
+        {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Mystery" style={{ width: '100%', borderRadius: '10px', maxHeight: '300px', objectFit: 'contain' }} />}
+        {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+        {isMediaKind(target.mediaType, target.mediaUrl, 'audio') && <audio src={target.mediaUrl} controls style={{ width: '100%' }} />}
       </div>
       {isMe ? <p style={{ color: '#ffb347' }}>This is your file! Sit back and watch. 😎</p> : !hasGuessed ? (
         <div style={grid}>{players.map(p => <button key={p.id} onClick={() => guessPlayer(p.id)} style={gBtn}>{p.name}</button>)}</div>
@@ -116,7 +116,7 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
       <div style={wrap}>
         <h2 style={{ color: '#ff5c35' }}>🤥 Two Truths & A Lie</h2>
         <p style={{ color: '#9090b0' }}>About: <strong style={{ color: '#35d4ff' }}>{target.name}</strong></p>
-        {target.mediaType === 'image' && <img src={target.mediaUrl} alt={target.name} style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', margin: '10px auto', display: 'block', border: '3px solid #ff5c35' }} />}
+        {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt={target.name} style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', margin: '10px auto', display: 'block', border: '3px solid #ff5c35' }} />}
         <p style={{ color: '#ffb347', marginBottom: '15px' }}>Which one is the LIE?</p>
         {isMe ? <p style={{ color: '#ffb347' }}>This round is about you! 😎</p> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, update, onValue, increment } from 'firebase/database';
 import { db } from '../firebase';
-import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, pickRandom } from './gameData';
+import { CAPTION_PROMPTS, SELL_THIS_ITEMS, QUICK_DRAW_SUBJECTS, shuffle, pickRandom, isMediaKind } from './gameData';
 
 const EMOJI_KEYBOARD = [
   ['😀','😂','🥹','😍','🤩','😎','🥳','😤','😱','🤯','😈','💀','👻','🤖','👽'],
@@ -26,7 +26,7 @@ export const CLEAR_KEYS = {
 
 function PlayerAvatar({ player, size }) {
   const s = size || 36;
-  if (player?.mediaUrl && player.mediaType === 'image') {
+  if (player?.mediaUrl && isMediaKind(player.mediaType, player.mediaUrl, 'image')) {
     return <img src={player.mediaUrl} alt={player.name} style={{ width: s, height: s, borderRadius: '50%', objectFit: 'cover', border: '2px solid #5a5a78', flexShrink: 0 }} />;
   }
   return <div style={{ width: s, height: s, borderRadius: '50%', background: '#3b3b5c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: s * 0.45, color: '#aaa', flexShrink: 0, border: '2px solid #5a5a78' }}>{(player?.name || '?')[0].toUpperCase()}</div>;
@@ -116,8 +116,8 @@ export function GameRenderer({ activity, roomCode, roomData, myPlayerId }) {
       <h2 style={{ color: '#f43f5e' }}>📸 Caption This!</h2>
       {target && target.mediaUrl ? (
         <div style={card}>
-          {target.mediaType === 'image' && <img src={target.mediaUrl} alt="Caption" style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', borderRadius: '10px' }} />}
-          {target.mediaType === 'video' && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
+          {isMediaKind(target.mediaType, target.mediaUrl, 'image') && <img src={target.mediaUrl} alt="Caption" style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', borderRadius: '10px' }} />}
+          {isMediaKind(target.mediaType, target.mediaUrl, 'video') && <video src={target.mediaUrl} controls style={{ width: '100%', borderRadius: '10px' }} />}
         </div>
       ) : (
         <div style={{ ...card, borderLeft: '5px solid #f43f5e', textAlign: 'center' }}>

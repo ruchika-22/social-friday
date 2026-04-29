@@ -8,6 +8,7 @@ import * as Brain from './games/BrainGames';
 import * as QuickFire from './games/QuickFireGames';
 import * as Party from './games/PartyGames';
 import { SECRET_QUESTIONS, STRENGTH_OPTIONS, WEAKNESS_OPTIONS } from './games/gameData';
+import { generateDynamicQuestion, generateLeaderboardCommentary } from './gemini';
 import './App.css';
 
 const CLOUD_NAME = 'dsti0gxty';
@@ -62,10 +63,22 @@ function AdminPanel() {
   const { code } = useParams();
   const navigate = useNavigate();
   const [roomData, setRoomData] = useState(null);
+  const [aiCommentary, setAiCommentary] = useState("Analyzing team dynamics...");
 
   useEffect(() => {
     return onValue(ref(db, `rooms/${code}`), s => setRoomData(s.val()));
   }, [code]);
+
+  // Ask Gemini for a roast whenever the leaderboard is shown
+  useEffect(() => {
+    if (roomData?.gameState === 'finished') {
+      async function fetchRoast() {
+        const roast = await generateLeaderboardCommentary(playersArray);
+        setAiCommentary(roast);
+      }
+      fetchRoast();
+    }
+  }, [roomData?.gameState]);
 
   if (!roomData) return <div style={centerMsg}>Loading room...</div>;
 
@@ -250,6 +263,13 @@ function AdminPanel() {
       {gs === 'finished' && (
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ color: '#ffb347', margin: '10px 0' }}>🏆 Final Leaderboard</h2>
+          
+          {/* NEW AI COMMENTARY BOX */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(53,212,255,0.2))', padding: '20px', borderRadius: '15px', margin: '20px auto', maxWidth: '400px', border: '1px solid rgba(168,85,247,0.4)' }}>
+              <p style={{ color: '#35d4ff', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>🤖 AI Game Master says:</p>
+              <p style={{ fontSize: '16px', fontStyle: 'italic', lineHeight: '1.4' }}>"{aiCommentary}"</p>
+          </div>
+
           {sorted.map((p, i) => (
             <div key={p.id} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -284,7 +304,7 @@ function AdminPanel() {
 function PlayerSetup({ roomCode, roomData, onReady }) {
   const [name, setName] = useState('');
   const [step, setStep] = useState(0);
-  const [secretQ, setSecretQ] = useState(() => SECRET_QUESTIONS[Math.floor(Math.random() * SECRET_QUESTIONS.length)]);
+  const [secretQ, setSecretQ] = useState('Loading a weird question...');
   const [secretA, setSecretA] = useState('');
   const [statements, setStatements] = useState([
     { text: '', isLie: false }, { text: '', isLie: false }, { text: '', isLie: true }
@@ -294,6 +314,15 @@ function PlayerSetup({ roomCode, roomData, onReady }) {
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  // Ask Gemini for a question when the screen loads!
+  useEffect(() => {
+    async function fetchQuestion() {
+      const aiQuestion = await generateDynamicQuestion();
+      setSecretQ(aiQuestion);
+    }
+    fetchQuestion();
+  }, []);
 
   const category = roomData?.selectedCategory;
   const needsFull = category === 'guess_who';

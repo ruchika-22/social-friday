@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/nexus-friday-app/static/css/main.87361f8a.css",
-    "main.js": "/nexus-friday-app/static/js/main.164e398e.js",
-    "index.html": "/nexus-friday-app/index.html",
-    "main.87361f8a.css.map": "/nexus-friday-app/static/css/main.87361f8a.css.map",
-    "main.164e398e.js.map": "/nexus-friday-app/static/js/main.164e398e.js.map"
+    "main.css": "/social-friday/static/css/main.87361f8a.css",
+    "main.js": "/social-friday/static/js/main.d10023b0.js",
+    "index.html": "/social-friday/index.html",
+    "main.87361f8a.css.map": "/social-friday/static/css/main.87361f8a.css.map",
+    "main.d10023b0.js.map": "/social-friday/static/js/main.d10023b0.js.map"
   },
   "entrypoints": [
     "static/css/main.87361f8a.css",
-    "static/js/main.164e398e.js"
+    "static/js/main.d10023b0.js"
   ]
 }
